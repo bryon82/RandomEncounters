@@ -4,7 +4,6 @@ using BepInEx.Configuration;
 using BepInEx.Logging;
 using HarmonyLib;
 using System.Collections;
-using System.Reflection;
 using UnityEngine;
 
 namespace RandomEncounters
@@ -53,15 +52,7 @@ namespace RandomEncounters
             }
 
             StartCoroutine(GenerateEncounter());
-        }
-
-        //void Update()
-        //{
-        //    if (Input.GetKeyDown(KeyCode.P))
-        //    {
-        //        EncounterGenerator.Generate();
-        //    }
-        //}
+        }        
 
         private IEnumerator GenerateEncounter()
         {
@@ -72,5 +63,13 @@ namespace RandomEncounters
                     EncounterGenerator.Generate();
             }
         }
+
+        //void Update()
+        //{
+        //    if (Input.GetKeyDown(KeyCode.P))
+        //    {
+        //        EncounterGenerator.Generate();
+        //    }
+        //}
     }
 }
