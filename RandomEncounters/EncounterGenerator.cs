@@ -4,7 +4,6 @@ namespace RandomEncounters
 {
     internal class EncounterGenerator
     {
-        // This can be used later to generate different types of encounters.
         public static void Generate()
         {
             Plugin.logger.LogDebug($"Distant to land {GameState.distanceToLand}");
