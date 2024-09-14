@@ -55,13 +55,13 @@ namespace RandomEncounters
             StartCoroutine(GenerateEncounter());
         }
 
-        void Update()
-        {
-            if (Input.GetKeyDown(KeyCode.P))
-            {
-                EncounterGenerator.Generate();
-            }
-        }
+        //void Update()
+        //{
+        //    if (Input.GetKeyDown(KeyCode.P))
+        //    {
+        //        EncounterGenerator.Generate();
+        //    }
+        //}
 
         private IEnumerator GenerateEncounter()
         {
