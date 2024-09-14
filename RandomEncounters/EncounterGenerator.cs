@@ -38,8 +38,11 @@ namespace RandomEncounters
         {
             if (Plugin.controlSeaLifeMod.Value && Plugin.seaLifeModInstance != null)
             {
-                var seaLifespawnPoint = GameState.currentBoat.position + new Vector3(Random.Range(-200, 200), -10, Random.Range(-200, 200));
-                SeaLifeMod.spawnWhale(Plugin.seaLifeModInstance, seaLifespawnPoint);
+                for (int i = 0; i < Random.Range(1, 3); i++)
+                {
+                    var seaLifespawnPoint = GameState.currentBoat.position + new Vector3(Random.Range(-200, 200), -8, Random.Range(-200, 200));
+                    SeaLifeMod.spawnWhale(Plugin.seaLifeModInstance, seaLifespawnPoint);
+                }                
             }                
         }
     }

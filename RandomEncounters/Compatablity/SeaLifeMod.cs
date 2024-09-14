@@ -21,6 +21,9 @@ namespace RandomEncounters
             var fpoOriginal = AccessTools.Method(seaLifePluginClass, "FindPlayerObject");
             var fpoPatch = AccessTools.Method(typeof(SeaLifePluginPatches), "FindPlayerObjectPatch");
             Plugin.harmony.Patch(fpoOriginal, new HarmonyMethod(fpoPatch));
+            var grspnpOriginal = AccessTools.Method(seaLifePluginClass, "GetRandomSpawnPositionNearPlayer");
+            var grspnpPatch = AccessTools.Method(typeof(SeaLifePluginPatches), "GetRandomSpawnPositionNearPlayerPatch");
+            Plugin.harmony.Patch(grspnpOriginal, new HarmonyMethod(grspnpPatch));
 
             var finWhaleAIClass = AppDomain.CurrentDomain.GetAssemblies()
                 .SelectMany(asm => asm.GetTypes())
@@ -37,6 +40,13 @@ namespace RandomEncounters
             public static bool FindPlayerObjectPatch(ref bool __result) 
             {
                 __result = false;
+                return false;
+            }
+
+            [HarmonyPrefix]
+            public static bool GetRandomSpawnPositionNearPlayerPatch(ref Vector3 __result)
+            {
+                __result = Utilities.PlayerTransform.position + Utilities.PlayerTransform.forward * -1000f;
                 return false;
             }
         }

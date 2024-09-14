@@ -15,7 +15,7 @@ namespace RandomEncounters
     {
         public const string PLUGIN_GUID = "com.raddude82.randomencounters";
         public const string PLUGIN_NAME = "RandomEncounters";
-        public const string PLUGIN_VERSION = "1.0.0";
+        public const string PLUGIN_VERSION = "1.0.1";
 
         public const string SMH_GUID = "com.app24.sailwindmoddinghelper";
         public const string SMH_VERSION = "2.0.3";
