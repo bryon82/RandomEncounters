@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.1.1] - 2024-09-16
+
+### Updated
+- Stop whales spawning from the SeaLifeMod instead of having them spawn and immediately destroyed
+- Shifting world is now set as the parent for wreckage
+
 ## [v1.1.0] - 2024-09-16
 
 ### Added
