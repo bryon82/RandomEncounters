@@ -109,6 +109,11 @@ namespace RandomEncounters
                 obj.GetComponent<Good>().RegisterAsMissionless();
             obj.GetComponent<ShipItem>().amount = amount;
             obj.GetComponent<ShipItem>().health = amount;
+            if (wreckage)
+            {
+                obj.GetComponent<ShipItem>().unclickable = true;
+                obj.transform.parent = Refs.shiftingWorld;
+            }                
             Plugin.logger.LogDebug($"Prefab {prefabGO.name} spawned");
             new WaitForSeconds(0.2f);
         }
