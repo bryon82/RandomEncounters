@@ -98,9 +98,13 @@ namespace RandomEncounters
             var tobaccoPrefabGO = GameAssets.GetPrefabGameObject(tobaccos[tobaccoChoice]);
             var tobaccoAmount = (float)System.Math.Round((decimal)Random.Range(0, tobaccoPrefabGO.GetComponent<ShipItem>().amount));
             SpawnItem(spawnPoint, tobaccoPrefabGO, tobaccoAmount);
+
+            SpawnItem(spawnPoint, AssetLoader.hull, 1f, true);
+            SpawnItem(spawnPoint, AssetLoader.mast, 1f, true);
+            SpawnItem(spawnPoint, AssetLoader.bowsprit, 1f, true);
         }
 
-        public static void SpawnItem(Vector3 spawnPoint, GameObject prefabGO, float amount)
+        public static void SpawnItem(Vector3 spawnPoint, GameObject prefabGO, float amount, bool wreckage = false)
         {
             GameObject obj = Object.Instantiate(prefabGO, spawnPoint, Quaternion.Euler(Random.Range(0, 360), Random.Range(0, 360), Random.Range(0, 360)));
             obj.GetComponent<ShipItem>().sold = true;

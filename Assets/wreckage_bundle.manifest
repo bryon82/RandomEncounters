@@ -1,0 +1,46 @@
+ManifestFileVersion: 0
+CRC: 2900172554
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: a955411750b4cf48cd81eeaea2f1d381
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 7623b1fd87db919cd77263ee62757b61
+HashAppended: 0
+ClassTypes:
+- Class: 1
+  Script: {instanceID: 0}
+- Class: 4
+  Script: {instanceID: 0}
+- Class: 21
+  Script: {instanceID: 0}
+- Class: 23
+  Script: {instanceID: 0}
+- Class: 28
+  Script: {instanceID: 0}
+- Class: 33
+  Script: {instanceID: 0}
+- Class: 43
+  Script: {instanceID: 0}
+- Class: 48
+  Script: {instanceID: 0}
+- Class: 54
+  Script: {instanceID: 0}
+- Class: 64
+  Script: {instanceID: 0}
+- Class: 114
+  Script: {fileID: 11500000, guid: 483dc0e3d9b045f45bc83d9d1cd2945d, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: ce1d4d865df5a0945b7339460857cfad, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 8aacdd6d8d57903419b72a05da009c4b, type: 3}
+- Class: 115
+  Script: {instanceID: 0}
+- Class: 136
+  Script: {instanceID: 0}
+Assets:
+- Assets/CustomPrefabs/mast.prefab
+- Assets/CustomPrefabs/bowsprit.prefab
+- Assets/CustomPrefabs/hull.prefab
+Dependencies: []
