@@ -4,6 +4,7 @@ using BepInEx.Configuration;
 using BepInEx.Logging;
 using HarmonyLib;
 using System.Collections;
+using System.Reflection;
 using UnityEngine;
 
 namespace RandomEncounters
@@ -15,7 +16,7 @@ namespace RandomEncounters
     {
         public const string PLUGIN_GUID = "com.raddude82.randomencounters";
         public const string PLUGIN_NAME = "RandomEncounters";
-        public const string PLUGIN_VERSION = "1.0.1";
+        public const string PLUGIN_VERSION = "1.1.0";
 
         public const string SMH_GUID = "com.app24.sailwindmoddinghelper";
         public const string SMH_VERSION = "2.0.3";
@@ -51,6 +52,7 @@ namespace RandomEncounters
                 }
             }
 
+            AssetLoader.LoadFlotsam();
             StartCoroutine(GenerateEncounter());
         }        
 

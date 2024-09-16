@@ -1,0 +1,7 @@
+ManifestFileVersion: 0
+CRC: 1762927669
+AssetBundleManifest:
+  AssetBundleInfos:
+    Info_0:
+      Name: wreckage_bundle
+      Dependencies: {}

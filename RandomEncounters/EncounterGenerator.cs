@@ -30,6 +30,7 @@ namespace RandomEncounters
 
         internal static void GenerateFlotsam()
         {
+            //var flotsamSpawnPoint = GameState.currentBoat.position + GameState.currentBoat.right * 30f;
             var flotsamSpawnPoint = GameState.currentBoat.position + GameState.currentBoat.right * 100f + GameState.currentBoat.forward * Random.Range(-30, 30);
             Flotsam.Spawn(flotsamSpawnPoint);
         }
