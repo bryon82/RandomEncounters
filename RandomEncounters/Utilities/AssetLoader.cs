@@ -1,5 +1,4 @@
-﻿using BepInEx;
-using System.IO;
+﻿using System.IO;
 using UnityEngine;
 
 namespace RandomEncounters
@@ -12,7 +11,7 @@ namespace RandomEncounters
 
         internal static void LoadFlotsam()
         {
-            var bundlePath = Path.Combine(Paths.PluginPath, "RandomEncounters", "Assets", "wreckage_bundle");
+            var bundlePath = Path.Combine(Path.GetDirectoryName(Plugin.instance.Info.Location), "Assets", "wreckage_bundle");
             var assetBundle = LoadAssetBundle(bundlePath);
             hull = assetBundle.LoadAsset<GameObject>("hull");
             mast = assetBundle.LoadAsset<GameObject>("mast");

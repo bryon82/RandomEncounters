@@ -14,7 +14,6 @@ These are the encounters that currently are a part of this mod:
 
 ### Requires
 * [BepInEx 5.4.23](https://github.com/BepInEx/BepInEx/releases)
-* [SailwindModdingHelper 2.0.3](https://thunderstore.io/c/sailwind/p/App24/SailwindModdingHelper/)
 
 ### Installation
 Place the RandomEncounters folder into the Sailwind/BepInEx/Plugins folder. If updating from v1.0.1 or below, remove the RandomEncounters.dll from Sailwind/BepInEx/Plugins.

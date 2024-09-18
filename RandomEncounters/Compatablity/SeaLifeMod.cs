@@ -1,5 +1,4 @@
 ﻿using HarmonyLib;
-using SailwindModdingHelper;
 using System;
 using System.Linq;
 using UnityEngine;
@@ -9,6 +8,7 @@ namespace RandomEncounters
     internal class SeaLifeMod
     {
         public static FastInvokeHandler spawnWhale;
+        public static FastInvokeHandler triggerRandomAnimation;        
 
         public static void PatchMod()
         {
@@ -24,13 +24,17 @@ namespace RandomEncounters
             spawnWhale = MethodInvoker.GetHandler(spawnWhaleMethod);
             
             // Patch to destroy whale GameObjects when far enough away
-            var finWhaleAIClass = AppDomain.CurrentDomain.GetAssemblies()
+            Type finWhaleAIClass = AppDomain.CurrentDomain.GetAssemblies()
                 .SelectMany(asm => asm.GetTypes())
                 .Where(type => type.IsClass && type.Name == "FinWhaleAI")
                 .Single();
             var cdpOriginal = AccessTools.Method(finWhaleAIClass, "CheckDistanceToPlayer");
             var cdpPatch = AccessTools.Method(typeof(FinWhaleAIPatches), "CheckDistanceToPlayerPatch");
             Plugin.harmony.Patch(cdpOriginal, new HarmonyMethod(cdpPatch));
+
+            // For triggering an animation on spawn
+            var triggerRandomAnimationMethod = AccessTools.Method(finWhaleAIClass, "TriggerRandomAnimation");
+            triggerRandomAnimation = MethodInvoker.GetHandler(triggerRandomAnimationMethod);            
         }
 
         public class FinWhaleAIPatches
@@ -38,13 +42,15 @@ namespace RandomEncounters
             [HarmonyPrefix]
             public static bool CheckDistanceToPlayerPatch()
             {
-                var whaleTransform = Refs.shiftingWorld.GetComponentsInChildren<Transform>().FirstOrDefault(t => t.name == "FinWhalePrefab(Clone)");
-
-                if (whaleTransform != null && Vector3.Distance(whaleTransform.position, Utilities.PlayerTransform.position) > 650f)
+                for (int i = 0; i < EncounterGenerator.whaleSpawns.Count; i++) 
                 {
-                    Plugin.logger.LogDebug($"Destroying {whaleTransform.name}");
-                    UnityEngine.Object.Destroy(whaleTransform.gameObject);
-                }
+                    if (Vector3.Distance(EncounterGenerator.whaleSpawns[i].position, Refs.observerMirror.transform.position) > 650f)
+                    {
+                        Plugin.logger.LogDebug($"Destroying {EncounterGenerator.whaleSpawns[i].name}");
+                        UnityEngine.Object.Destroy(EncounterGenerator.whaleSpawns[i].gameObject);
+                        EncounterGenerator.whaleSpawns.Remove(EncounterGenerator.whaleSpawns[i]);
+                    }
+                }                
                 return false;
             }
         }

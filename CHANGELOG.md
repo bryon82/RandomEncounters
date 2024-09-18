@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.1.2] - 2024-09-17
+
+### Added
+- Make one of the whales play an animation when spawned for better visibility that an sealife encounter was rolled
+
+### Updated
+- The check to see if whales are far enough away to destroy so that is less of a performance hit
+
+### Removed
+- Dependency on SailwindModdingHelper
+
 ## [v1.1.1] - 2024-09-16
 
 ### Updated
