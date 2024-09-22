@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using HarmonyLib;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -47,14 +48,17 @@ namespace RandomEncounters
                     case int n when n > 15 && n <= 40:
                         StartCoroutine(GenerateWhale());
                         break;
+                    case int n when n > 40 && n <= 45:
+                        StartCoroutine(GenerateDenseFog());
+                        break;
                 }
             }
         }
 
         internal static void GenerateFlotsam()
         {
-            var flotsamSpawnPoint = GameState.currentBoat.position + GameState.currentBoat.right * 100f + GameState.currentBoat.forward * Random.Range(-30, 30);
-            Flotsam.Spawn(flotsamSpawnPoint);
+            var spawnPoint = GameState.currentBoat.position + GameState.currentBoat.right * 100f + GameState.currentBoat.forward * Random.Range(-30, 30);
+            Flotsam.Spawn(spawnPoint);
         }
 
         internal IEnumerator GenerateWhale()
@@ -71,9 +75,34 @@ namespace RandomEncounters
                 whaleSpawns = Refs.shiftingWorld.GetComponentsInChildren<Transform>().Where(t => t.name == "FinWhalePrefab(Clone)").ToList();
                 var whaleTransform = whaleSpawns.FirstOrDefault();
                 var finWhaleAI = whaleTransform.gameObject.GetComponent("FinWhaleAI");
-                SeaLifeMod.triggerRandomAnimation(finWhaleAI);             
+                SeaLifeMod.triggerRandomAnimation(finWhaleAI);
             }
-            yield break;
+        }
+
+        internal IEnumerator GenerateDenseFog()
+        {
+            if (DenseFog.running)
+                yield break;
+            if (Traverse.Create(WeatherStorms.instance).Method("GetNormalizedDistance").GetValue<float>() < 0.5f)
+                yield break;            
+            DenseFog.Spawn();
+            yield return new WaitForSeconds(23f);
+            for (int i = 0; i < 4; i++)
+            {
+                var spawnPoint = 
+                    GameState.currentBoat.position +
+                    GameState.currentBoat.right * (200f + Random.Range(20f, 60f) * i) +
+                    GameState.currentBoat.forward * Random.Range(-200, 200);
+
+                Flotsam.SpawnItem(spawnPoint, AssetLoader.hull, 1f, true);
+                yield return new WaitForSeconds(1f);
+                Flotsam.SpawnItem(spawnPoint, AssetLoader.mast, 1f, true);
+                yield return new WaitForSeconds(1f);
+                Flotsam.SpawnItem(spawnPoint, AssetLoader.bowsprit, 1f, true);
+                yield return new WaitForSeconds(1f);
+            }
+            yield return new WaitForSeconds(Plugin.fogDuration.Value);
+            DenseFog.ClearFog();
         }
 
         // for testing
