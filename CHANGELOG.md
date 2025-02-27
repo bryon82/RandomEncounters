@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.1.4] - 2025-02-26
+
+### Added
+- Setting to enable or disable dense fog encounter
+- Setting to enable or disable flotsam encounter
+
+### Fixed
+- Fog duration setting was not being initialized, potential source of infinite fog bug
+
 ## [v1.1.3] - 2024-09-21
 
 ### Added
