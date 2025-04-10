@@ -366,3 +366,4 @@ FodyWeavers.xsd
 DoRelease.ps1
 releaseGithub/
 releaseThunderstore/
+thunderstore.toml

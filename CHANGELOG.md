@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.1.5] - 2025-04-09
+
+### Added
+- Intense storm encounter
+- Fishing bonanza encounter
+- Settings to enable/disable the new encounters
+- Settings for the duration of the new encounters
+
 ## [v1.1.4] - 2025-02-26
 
 ### Added
