@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.1.6] - 2025-04-09
+
+### Fixed
+- Seagulls not showing up for fishing bonanza
+
 ## [v1.1.5] - 2025-04-09
 
 ### Added
