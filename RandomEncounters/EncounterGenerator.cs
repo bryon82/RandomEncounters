@@ -36,7 +36,7 @@ namespace RandomEncounters
             var roll = Random.Range(1, 100);
             Plugin.logger.LogDebug($"Roll: {roll}");
 
-            switch (47)
+            switch (roll)
             {
                 case int n when n <= 10:
                     GenerateFlotsam();
@@ -200,7 +200,7 @@ namespace RandomEncounters
             IntenseStorm.oceanUpdaterCrest.SetPrivateField("smallWavesMult", origSmallWavesMult);            
         }
 
-        
+       /* 
         // for testing
         void Update()
         {
@@ -209,6 +209,6 @@ namespace RandomEncounters
                 Generate();
             }
         }
-        
+        */
     }
 }
