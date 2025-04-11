@@ -36,7 +36,7 @@ namespace RandomEncounters
             var roll = Random.Range(1, 100);
             Plugin.logger.LogDebug($"Roll: {roll}");
 
-            switch (roll)
+            switch (47)
             {
                 case int n when n <= 10:
                     GenerateFlotsam();
@@ -128,12 +128,18 @@ namespace RandomEncounters
 
             Plugin.logger.LogDebug("Starting fishing bonanza");
             var seagulls = Instantiate(seagullsGO, Refs.shiftingWorld);
+            if (!seagulls.activeInHierarchy) seagulls.SetActive(true);
             seagulls.GetComponent<AudioSource>().PlayOneShot(seagulls.GetComponent<AudioSource>().clip);
+            var seagullsPS = seagulls.GetComponent<ParticleSystem>();
+            var shape = seagullsPS.shape;
+            shape.radius = 100f;
+            var emission = seagullsPS.emission;
+            if (!emission.enabled) emission.enabled = true;
             FishingBonanza.bonanzaActive = true;
-            for (int t = 0; t < Plugin.fishingBonanzaDuration.Value; t++)
+            for (int t = 0; t < Plugin.fishingBonanzaDuration.Value * 1000; t++)
             {
-                seagulls.transform.position = GameState.currentBoat.position + GameState.currentBoat.up * 80f;
-                yield return new WaitForSeconds(1f);
+                seagulls.transform.position = GameState.currentBoat.position + GameState.currentBoat.up * 60f;
+                yield return new WaitForSeconds(0.0001f);
             }
 
             Plugin.logger.LogDebug("Stopping fishing bonanza");
@@ -194,7 +200,7 @@ namespace RandomEncounters
             IntenseStorm.oceanUpdaterCrest.SetPrivateField("smallWavesMult", origSmallWavesMult);            
         }
 
-        /*
+        
         // for testing
         void Update()
         {
@@ -203,6 +209,6 @@ namespace RandomEncounters
                 Generate();
             }
         }
-        */
+        
     }
 }
