@@ -2,7 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
-## [v1.1.6] - 2025-04-09
+## [v1.1.7] - 2025-04-11
+
+### Removed
+- Constant light wave noise playing throughout dense fog encounter
+
+## [v1.1.6] - 2025-04-11
 
 ### Fixed
 - Seagulls not showing up for fishing bonanza
