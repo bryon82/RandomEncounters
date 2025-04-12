@@ -1,4 +1,6 @@
 ﻿using HarmonyLib;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace RandomEncounters
@@ -11,6 +13,9 @@ namespace RandomEncounters
         private static float currentFogDensity = 0f;
         private static float originalFogDensity = 0f;
 
+        internal static Dictionary<AudioSource, float> waveAudioSources = new Dictionary<AudioSource, float>();
+        internal static (AudioSource source, float origVolume) windAudioSource;
+
         [HarmonyPatch(typeof(OceanColorBlender))]
         private class OceanColorBlenderPatches
         {
@@ -18,7 +23,9 @@ namespace RandomEncounters
             [HarmonyPatch("ApplyPalette")]
             public static void ApplyFogDensity(ref OceanColorPalette palette)
             {
-                if (!running) return;
+                if (!running) 
+                    return;
+
                 originalFogDensity = originalFogDensity == 0f ? palette.fogDensity : originalFogDensity;
                 currentFogDensity = currentFogDensity == 0f ? palette.fogDensity : currentFogDensity;
 
@@ -43,7 +50,9 @@ namespace RandomEncounters
             [HarmonyPatch("SetNewGustTarget")]
             public static bool NoGust(ref Vector3 ___currentGustTarget, Vector3 ___currentWindTarget)
             {
-                if (!running) return true;
+                if (!running)
+                    return true;
+
                 ___currentGustTarget = ___currentWindTarget;
                 return false;
             }
@@ -52,7 +61,9 @@ namespace RandomEncounters
             [HarmonyPatch("SetNewWindTarget")]
             public static bool LightWind(ref Vector3 ___currentWindTarget)
             {
-                if (!running) return true;
+                if (!running)
+                    return true;
+
                 ___currentWindTarget = Wind.currentBaseWind.normalized * 3f;
                 return false;
             }
@@ -63,13 +74,22 @@ namespace RandomEncounters
         {
             [HarmonyPrefix]
             [HarmonyPatch("UpdateIntensity")]
-            public static bool SetToMinVolume(ref float ___audioVolume, float ___minVolume)
+            public static bool SetToMinVolume(AudioSource ___audio, float ___minVolume)
             {
-                if (!running) return true;
-                ___audioVolume = ___minVolume;
+                if (!running)
+                    return true;
+
                 return false;
             }
+
+            [HarmonyPostfix]
+            [HarmonyPatch("Start")]
+            public static void GetAudioSource(AudioSource ___audio)
+            {
+                waveAudioSources.Add(___audio, ___audio.volume);
+            }
         }
+
 
         [HarmonyPatch(typeof(WindSound))]
         private class WindSoundPatches
@@ -78,15 +98,28 @@ namespace RandomEncounters
             [HarmonyPatch("Update")]
             public static bool SetToMinVolume(ref AudioSource ___audio)
             {
-                if (!running) return true;
-                ___audio.volume = 0.0001f;
+                if (!running) 
+                    return true;
+
                 return false;
+            }
+
+            [HarmonyPostfix]
+            [HarmonyPatch("Start")]
+            public static void GetAudioSource(AudioSource ___audio)
+            {
+                windAudioSource = (___audio, ___audio.volume);
             }
         }
 
         public static void Spawn()
         {
             Plugin.logger.LogDebug($"Spawning fog");
+            foreach (var source in waveAudioSources.Keys.ToList())
+            {
+                waveAudioSources[source] = source.volume;
+            }
+            windAudioSource.origVolume = windAudioSource.source.volume;
             clearFog = false;
             running = true;
         }
@@ -94,7 +127,7 @@ namespace RandomEncounters
         public static void ClearFog()
         {
             Plugin.logger.LogDebug($"Clearing fog");
-            clearFog = true;
+            clearFog = true;          
         }
     }
 }

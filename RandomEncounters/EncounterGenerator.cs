@@ -91,11 +91,20 @@ namespace RandomEncounters
         {
             if (!Plugin.enableDenseFog.Value ||
                 DenseFog.running ||
-                WeatherStorms.instance.InvokePrivateMethod<float>("GetNormalizedDistance") < 0.5f)
+                WeatherStorms.instance.InvokePrivateMethod<float>("GetNormalizedDistance") < 0.75f)
                 yield break;
 
-            DenseFog.Spawn();
-            yield return new WaitForSeconds(23f);
+            DenseFog.Spawn();           
+            for (int i = 0; i < 4000; i++) 
+            {
+                foreach (var audioSource in DenseFog.waveAudioSources.Keys)
+                {
+                    audioSource.volume = Mathf.Lerp(DenseFog.waveAudioSources[audioSource], 0f, i / 1000f);
+                }
+                DenseFog.windAudioSource.source.volume = Mathf.Lerp(DenseFog.windAudioSource.origVolume, 0.0001f, i / 1000f);
+                yield return new WaitForSeconds(0.001f);
+            }
+
             for (int i = 0; i < 4; i++)
             {
                 var spawnPoint = 
@@ -110,8 +119,19 @@ namespace RandomEncounters
                 Flotsam.SpawnItem(spawnPoint, AssetLoader.bowsprit, 1f, true);
                 yield return new WaitForSeconds(1f);
             }
+
             yield return new WaitForSeconds(Plugin.fogDuration.Value);
+
             DenseFog.ClearFog();
+            for (int i = 0; i < 1000; i++)
+            {
+                foreach (var audioSource in DenseFog.waveAudioSources.Keys)
+                {
+                    audioSource.volume = Mathf.Lerp(0f, DenseFog.waveAudioSources[audioSource], i / 1000f);
+                }
+                DenseFog.windAudioSource.source.volume = Mathf.Lerp(0.0001f, DenseFog.windAudioSource.origVolume,  i / 1000f);
+                yield return new WaitForSeconds(0.001f);
+            }
         }
 
         internal IEnumerator GenerateFishingBonanza()
@@ -200,7 +220,7 @@ namespace RandomEncounters
             IntenseStorm.oceanUpdaterCrest.SetPrivateField("smallWavesMult", origSmallWavesMult);            
         }
 
-       /* 
+        /*
         // for testing
         void Update()
         {
@@ -210,5 +230,4 @@ namespace RandomEncounters
             }
         }
         */
-    }
-}
+    }}
