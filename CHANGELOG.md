@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.1.8] - 2025-04-14
+
+### Fixed
+- Error thrown during fishing bonanza encounter if player falls out of their boat
+
 ## [v1.1.7] - 2025-04-11
 
 ### Removed

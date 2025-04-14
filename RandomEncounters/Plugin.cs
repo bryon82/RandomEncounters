@@ -14,7 +14,7 @@ namespace RandomEncounters
     {
         public const string PLUGIN_GUID = "com.raddude82.randomencounters";
         public const string PLUGIN_NAME = "RandomEncounters";
-        public const string PLUGIN_VERSION = "1.1.7";
+        public const string PLUGIN_VERSION = "1.1.8";
 
         public const string SEALIFEMOD_GUID = "com.yourname.sailwind.sealifeplugin";
         internal static BaseUnityPlugin seaLifeModInstance;
@@ -39,7 +39,7 @@ namespace RandomEncounters
         private void Awake()
         {
             instance = this;
-            logger = Logger;            
+            logger = Logger;
 
             generateEncounterMinTime = Config.Bind("Settings", "Minimum encounter generation time", 900, "Minimum time in seconds to get a chance roll for an encounter, the encounter time range max is 5 minutes added to this.");
             enableFlotsam = Config.Bind("Settings", "Enable flotsam encounters", true, "Enable flotsam encounters.");
@@ -62,7 +62,7 @@ namespace RandomEncounters
                     seaLifeModInstance = plugin.Value.Instance;
                     SeaLifeMod.PatchMod();
                 }
-                
+
                 if (metadata.GUID.Equals(IDLEFISHING_GUID))
                 {
                     logger.LogInfo($"{IDLEFISHING_GUID} found");
@@ -70,8 +70,8 @@ namespace RandomEncounters
                 }
             }
 
-            AssetLoader.LoadFlotsam();                        
-            this.gameObject.AddComponent<EncounterGenerator>();            
+            AssetLoader.LoadFlotsam();
+            this.gameObject.AddComponent<EncounterGenerator>();
         }
     }
 }

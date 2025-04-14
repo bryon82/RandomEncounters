@@ -9,6 +9,7 @@ namespace RandomEncounters
     {
         public static EncounterGenerator instance;
         public static List<Transform> whaleSpawns;
+        private bool moveSeagulls;
 
         public void Awake()
         {
@@ -32,7 +33,7 @@ namespace RandomEncounters
             Plugin.logger.LogDebug($"Distance to land {GameState.distanceToLand}");
 
             if (!GameState.playing || GameState.sleeping || GameState.distanceToLand <= 1000f) return;
-            
+
             var roll = Random.Range(1, 100);
             Plugin.logger.LogDebug($"Roll: {roll}");
 
@@ -57,7 +58,7 @@ namespace RandomEncounters
                 case int n when n > 55 && n <= 60:
                     StartCoroutine(GenerateIntenseStorm());
                     break;
-            }            
+            }
         }
 
         internal static void GenerateFlotsam()
@@ -71,7 +72,7 @@ namespace RandomEncounters
         internal IEnumerator GenerateWhale()
         {
             if (!Plugin.controlSeaLifeMod.Value || Plugin.seaLifeModInstance == null) 
-                yield break;            
+                yield break;
 
             for (int i = 0; i < Random.Range(1, 3); i++)
             {
@@ -94,7 +95,7 @@ namespace RandomEncounters
                 WeatherStorms.instance.InvokePrivateMethod<float>("GetNormalizedDistance") < 0.75f)
                 yield break;
 
-            DenseFog.Spawn();           
+            DenseFog.Spawn();
             for (int i = 0; i < 4000; i++) 
             {
                 foreach (var audioSource in DenseFog.waveAudioSources.Keys)
@@ -136,9 +137,13 @@ namespace RandomEncounters
 
         internal IEnumerator GenerateFishingBonanza()
         {
-            if (!Plugin.enableFishingBonanza.Value)
+            if (!Plugin.enableFishingBonanza.Value ||
+            GameState.currentBoat == null ||
+            WeatherStorms.instance.InvokePrivateMethod<float>("GetNormalizedDistance") < 0.75f)
+            {
                 yield break;
-            
+            }
+
             var seagullsGO = Refs.islands[3].GetComponentsInChildren<Transform>().FirstOrDefault(t => t.name == "seagulls")?.gameObject;
             if (seagullsGO == null)
             {
@@ -146,7 +151,6 @@ namespace RandomEncounters
                 yield break;
             }
 
-            Plugin.logger.LogDebug("Starting fishing bonanza");
             var seagulls = Instantiate(seagullsGO, Refs.shiftingWorld);
             if (!seagulls.activeInHierarchy) seagulls.SetActive(true);
             seagulls.GetComponent<AudioSource>().PlayOneShot(seagulls.GetComponent<AudioSource>().clip);
@@ -155,16 +159,26 @@ namespace RandomEncounters
             shape.radius = 100f;
             var emission = seagullsPS.emission;
             if (!emission.enabled) emission.enabled = true;
+
+            Plugin.logger.LogDebug("Starting fishing bonanza");
             FishingBonanza.bonanzaActive = true;
-            for (int t = 0; t < Plugin.fishingBonanzaDuration.Value * 1000; t++)
-            {
-                seagulls.transform.position = GameState.currentBoat.position + GameState.currentBoat.up * 60f;
-                yield return new WaitForSeconds(0.0001f);
-            }
+            moveSeagulls = true;
+            StartCoroutine(MoveSegulls(seagulls.transform, GameState.currentBoat));
+            yield return new WaitForSeconds(Plugin.fishingBonanzaDuration.Value);            
 
             Plugin.logger.LogDebug("Stopping fishing bonanza");
             FishingBonanza.bonanzaActive = false;
+            moveSeagulls = false;
             Destroy(seagulls);
+        }
+
+        private IEnumerator MoveSegulls(Transform seagulls, Transform boat)
+        {
+            while (moveSeagulls)
+            {
+                seagulls.position = boat.position + boat.up * 60f;
+                yield return null;
+            }            
         }
 
         internal IEnumerator GenerateIntenseStorm()
@@ -192,10 +206,10 @@ namespace RandomEncounters
 
             Plugin.logger.LogDebug($"{storm.name} approaching");
             while (stormDist > 1500f)
-            {                
+            {
                 vector = Camera.main.transform.position - storm.transform.position;                
                 vector.y = 0f;
-                Wind.currentBaseWind = vector * 50f;                
+                Wind.currentBaseWind = vector * 50f;
                 var translateSpeed = weatherStorms.InvokePrivateMethod<float>("GetNormalizedDistance") < weatherStorms.GetPrivateField<float>("rainBorder") ? 0.005f : 0.25f; 
                 storm.transform.Translate(vector * translateSpeed);
                 yield return new WaitForSeconds(0.3f);
@@ -207,7 +221,7 @@ namespace RandomEncounters
             IntenseStorm.oceanUpdaterCrest.SetPrivateField("windSpeedMult", 5f);
             IntenseStorm.oceanUpdaterCrest.SetPrivateField("smallWavesMult", 0.4f);
             for (int i = 0; i < Plugin.intenseStormDuration.Value; i++)
-            {               
+            {
                 Wind.currentBaseWind = vector * 50f;
                 yield return new WaitForSeconds(1f);
             }
