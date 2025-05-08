@@ -1,17 +1,18 @@
 ﻿using Crest;
 using HarmonyLib;
 using UnityEngine;
+using static RandomEncounters.RE_Plugin;
 
 namespace RandomEncounters
 {
     internal class FishingBonanza
     {
-        internal static bool bonanzaActive = false;
+        public static bool IsBonanzaActive { get; set; } = false;
 
         [HarmonyPatch(typeof(FishingRodFish))]
         [HarmonyPatch("Update")]
         private class FishingRodFishPatches
-        {            
+        {
             [HarmonyPostfix]
             public static void IncreaseCatchChance(
                 FishingRodFish __instance,
@@ -20,17 +21,17 @@ namespace RandomEncounters
                 ConfigurableJoint ___bobberJoint,
                 ref float ___fishTimer)
             {
-                if (!bonanzaActive ||
+                if (!IsBonanzaActive ||
                     __instance.currentFish != null ||
                     ___rod.health <= 0f ||
-                    (!(bool)___rod.held && !Plugin.idleFishingFound) ||
+                    (!(bool)___rod.held && !IdleFishingPluginDetected) ||
                     !___floater.InWater ||
                     ___bobberJoint.linearLimit.limit <= 1f ||
                     __instance.gameObject.layer == 16)
                 {
                     return;
                 }
-                
+
                 ___fishTimer -= Time.deltaTime;
                 float value = Vector3.Distance(__instance.transform.position, ___rod.transform.position);
                 float num = Mathf.InverseLerp(3f, 20f, value) * 2.5f + 0.5f;
@@ -42,7 +43,7 @@ namespace RandomEncounters
                     {
                         __instance.CatchFish();
                     }
-                }                
+                }
             }
         }
     }

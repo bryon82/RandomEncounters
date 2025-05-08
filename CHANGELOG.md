@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.2.0] - 2025-05-08
+
+## Updated
+- Complete rework of SeaLifeMod control. Eliminates stutter when spawning whales.
+- Increased number of whales in whale encounter to 2 to 5 whales.
+- Improved asset loading time for a quicker startup.
+- Refactor for improved encapsulation, code clarity, and ease of future changes.
+
 ## [v1.1.8] - 2025-04-14
 
 ### Fixed

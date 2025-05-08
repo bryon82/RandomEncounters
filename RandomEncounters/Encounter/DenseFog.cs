@@ -2,19 +2,21 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using static RandomEncounters.RE_Plugin;
 
 namespace RandomEncounters
 {
     internal class DenseFog
     {
-        internal static bool running = false;
-        private static bool clearFog = true;
-        private static readonly float fogDensityMax = 0.06f;
-        private static float currentFogDensity = 0f;
-        private static float originalFogDensity = 0f;
+        public static bool IsRunning { get; private set; } = false;
+        public static Dictionary<AudioSource, float> WaveAudioSources { get; private set; } = new Dictionary<AudioSource, float>();
+        public static (AudioSource source, float origVolume) WindAudioSource { get; private set; } = (null, 0f);
 
-        internal static Dictionary<AudioSource, float> waveAudioSources = new Dictionary<AudioSource, float>();
-        internal static (AudioSource source, float origVolume) windAudioSource;
+        private static bool s_clearFog = true;        
+        private static float s_currentFogDensity = 0f;
+        private static float s_originalFogDensity = 0f;
+
+        private const float MAX_FOG_DENSITY = 0.06f;        
 
         [HarmonyPatch(typeof(OceanColorBlender))]
         private class OceanColorBlenderPatches
@@ -23,23 +25,23 @@ namespace RandomEncounters
             [HarmonyPatch("ApplyPalette")]
             public static void ApplyFogDensity(ref OceanColorPalette palette)
             {
-                if (!running) 
+                if (!IsRunning) 
                     return;
 
-                originalFogDensity = originalFogDensity == 0f ? palette.fogDensity : originalFogDensity;
-                currentFogDensity = currentFogDensity == 0f ? palette.fogDensity : currentFogDensity;
+                s_originalFogDensity = s_originalFogDensity == 0f ? palette.fogDensity : s_originalFogDensity;
+                s_currentFogDensity = s_currentFogDensity == 0f ? palette.fogDensity : s_currentFogDensity;
 
-                if (clearFog && currentFogDensity > originalFogDensity) currentFogDensity -= 0.00001f;
-                if (!clearFog && currentFogDensity < fogDensityMax) currentFogDensity += 0.00001f;
-                palette.fogDensity = currentFogDensity;
+                if (s_clearFog && s_currentFogDensity > s_originalFogDensity) s_currentFogDensity -= 0.00001f;
+                if (!s_clearFog && s_currentFogDensity < MAX_FOG_DENSITY) s_currentFogDensity += 0.00001f;
+                palette.fogDensity = s_currentFogDensity;
 
-                if (clearFog && currentFogDensity <= originalFogDensity)
+                if (s_clearFog && s_currentFogDensity <= s_originalFogDensity)
                 {
-                    running = false;
-                    currentFogDensity = 0f;
-                    originalFogDensity = 0f;
+                    IsRunning = false;
+                    s_currentFogDensity = 0f;
+                    s_originalFogDensity = 0f;
                     Traverse.Create(GameObject.Find("wind").GetComponent<Wind>()).Field("timer").SetValue(0);
-                }                
+                }
             }
         }
 
@@ -50,7 +52,7 @@ namespace RandomEncounters
             [HarmonyPatch("SetNewGustTarget")]
             public static bool NoGust(ref Vector3 ___currentGustTarget, Vector3 ___currentWindTarget)
             {
-                if (!running)
+                if (!IsRunning)
                     return true;
 
                 ___currentGustTarget = ___currentWindTarget;
@@ -61,7 +63,7 @@ namespace RandomEncounters
             [HarmonyPatch("SetNewWindTarget")]
             public static bool LightWind(ref Vector3 ___currentWindTarget)
             {
-                if (!running)
+                if (!IsRunning)
                     return true;
 
                 ___currentWindTarget = Wind.currentBaseWind.normalized * 3f;
@@ -74,9 +76,9 @@ namespace RandomEncounters
         {
             [HarmonyPrefix]
             [HarmonyPatch("UpdateIntensity")]
-            public static bool SetToMinVolume(AudioSource ___audio, float ___minVolume)
+            public static bool SetToMinVolume()
             {
-                if (!running)
+                if (!IsRunning)
                     return true;
 
                 return false;
@@ -86,7 +88,7 @@ namespace RandomEncounters
             [HarmonyPatch("Start")]
             public static void GetAudioSource(AudioSource ___audio)
             {
-                waveAudioSources.Add(___audio, ___audio.volume);
+                WaveAudioSources.Add(___audio, ___audio.volume);
             }
         }
 
@@ -96,9 +98,9 @@ namespace RandomEncounters
         {
             [HarmonyPrefix]
             [HarmonyPatch("Update")]
-            public static bool SetToMinVolume(ref AudioSource ___audio)
+            public static bool SetToMinVolume()
             {
-                if (!running) 
+                if (!IsRunning)
                     return true;
 
                 return false;
@@ -108,26 +110,26 @@ namespace RandomEncounters
             [HarmonyPatch("Start")]
             public static void GetAudioSource(AudioSource ___audio)
             {
-                windAudioSource = (___audio, ___audio.volume);
+                WindAudioSource = (___audio, ___audio.volume);
             }
         }
 
         public static void Spawn()
         {
-            Plugin.logger.LogDebug($"Spawning fog");
-            foreach (var source in waveAudioSources.Keys.ToList())
+            LogDebug($"Spawning fog");
+            foreach (var source in WaveAudioSources.Keys.ToList())
             {
-                waveAudioSources[source] = source.volume;
+                WaveAudioSources[source] = source.volume;
             }
-            windAudioSource.origVolume = windAudioSource.source.volume;
-            clearFog = false;
-            running = true;
+            WindAudioSource = (WindAudioSource.source, WindAudioSource.source.volume);
+            s_clearFog = false;
+            IsRunning = true;
         }
 
         public static void ClearFog()
         {
-            Plugin.logger.LogDebug($"Clearing fog");
-            clearFog = true;          
+            LogDebug($"Clearing fog");
+            s_clearFog = true;
         }
     }
 }
