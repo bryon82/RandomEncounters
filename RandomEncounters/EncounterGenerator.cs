@@ -13,7 +13,6 @@ namespace RandomEncounters
         private bool _moveSeagulls;
 
         private const float MIN_DISTANCE = 1000F;
-        private const int ENCOUNTER_TIME_RANGE = 300;
 
         public void Awake()
         {
@@ -23,7 +22,7 @@ namespace RandomEncounters
                 return;
             }
             Instance = this;
-            
+
             StartCoroutine(ScheduleEncounter());
         }
 
@@ -31,7 +30,7 @@ namespace RandomEncounters
         {
             SeaLifeMod.CheckWhaleDistance();
 
-            /*
+            /* 
             // for testing
             if (Input.GetKeyDown(KeyCode.P))
             {
@@ -42,8 +41,12 @@ namespace RandomEncounters
 
         private IEnumerator ScheduleEncounter()
         {
-            var maxTime = generateEncounterMinTime.Value + ENCOUNTER_TIME_RANGE;
-            var timeToNextEncounter = Random.Range(generateEncounterMinTime.Value, maxTime);
+            yield return new WaitUntil(() => GameState.playing);
+
+            var minTime = Mathf.Abs(generateEncounterMinTime.Value);
+            var range = Mathf.Abs(generateEncounterTimeRange.Value);
+            var timeToNextEncounter = minTime + Random.Range(0, range);
+
             yield return new WaitForSeconds(timeToNextEncounter);
             if (GameState.currentBoat != null)
                 Generate();
@@ -66,9 +69,10 @@ namespace RandomEncounters
             {
                 LogDebug("Player sleeping, skipping encounter generation.");
                 return;
-            }            
+            }
 
-            var roll = Random.Range(1, 100);
+            var rollRange = 100 + Mathf.Abs(encounterRollMaxIncrease.Value);
+            var roll = Random.Range(1, rollRange);
             LogDebug($"Roll: {roll}");
 
             switch (roll)
@@ -92,6 +96,9 @@ namespace RandomEncounters
                 case int n when n > 55 && n <= 60:
                     StartCoroutine(GenerateIntenseStorm());
                     break;
+                case int n when n > 60:
+                    LogDebug("No encounter this time");
+                    break;
             }
         }
 
@@ -111,17 +118,17 @@ namespace RandomEncounters
             if (!controlSeaLifeMod.Value || SeaLifeModPluginInstance == null) 
                 yield break;
 
-            var boatPosition = GameState.currentBoat.position;            
+            var boatPosition = GameState.currentBoat.position;
 
             for (int i = 0; i < Random.Range(2, 5); i++)
             {
                 var randomOffset = new Vector3(Random.Range(-200, 200), -8, Random.Range(-200, 200));
-                yield return new WaitForSeconds(2f);                
+                yield return new WaitForSeconds(2f);
                 SeaLifeMod.SpawnWhale(i, boatPosition + randomOffset);
             }
             yield return new WaitForSeconds(2f);
-            SeaLifeMod.TriggerEntranceAnimation();                      
-        }        
+            SeaLifeMod.TriggerEntranceAnimation();
+        }
 
         #endregion
 
@@ -152,11 +159,7 @@ namespace RandomEncounters
                     GameState.currentBoat.right * (200f + Random.Range(20f, 60f) * i) +
                     GameState.currentBoat.forward * Random.Range(-200, 200);
 
-                Flotsam.SpawnItem(spawnPoint, AssetLoader.Hull, 1f, true);
-                yield return new WaitForSeconds(1f);
-                Flotsam.SpawnItem(spawnPoint, AssetLoader.Mast, 1f, true);
-                yield return new WaitForSeconds(1f);
-                Flotsam.SpawnItem(spawnPoint, AssetLoader.Bowsprit, 1f, true);
+                Flotsam.SpawnItem(spawnPoint, Random.Range(1, 100) > 50 ? AssetLoader.SmallWreck : AssetLoader.Hull, 1f, true);
                 yield return new WaitForSeconds(1f);
             }
 
@@ -207,7 +210,7 @@ namespace RandomEncounters
             FishingBonanza.IsBonanzaActive = true;
             _moveSeagulls = true;
             StartCoroutine(MoveSegulls(seagulls.transform, GameState.currentBoat));
-            yield return new WaitForSeconds(fishingBonanzaDuration.Value);            
+            yield return new WaitForSeconds(fishingBonanzaDuration.Value);
 
             LogDebug("Stopping fishing bonanza");
             FishingBonanza.IsBonanzaActive = false;

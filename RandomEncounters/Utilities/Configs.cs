@@ -4,7 +4,9 @@ namespace RandomEncounters
 {
     internal class Configs
     {
+        internal static ConfigEntry<int> encounterRollMaxIncrease;
         internal static ConfigEntry<int> generateEncounterMinTime;
+        internal static ConfigEntry<int> generateEncounterTimeRange;
         internal static ConfigEntry<bool> enableFlotsam;
         internal static ConfigEntry<bool> controlSeaLifeMod;
         internal static ConfigEntry<bool> enableDenseFog;
@@ -18,7 +20,9 @@ namespace RandomEncounters
         {
             var config = RE_Plugin.Instance.Config;
 
-            generateEncounterMinTime = config.Bind("Settings", "Minimum encounter generation time", 900, "Minimum time in seconds to get a chance roll for an encounter, the encounter time range max is 5 minutes added to this.");
+            encounterRollMaxIncrease = config.Bind("Settings", "Encounter roll max increase", 0, "Default chance for an encounter to happen is 60/100. Increasing this increases the bottom number, so your chances of an encounter decrease.");
+            generateEncounterMinTime = config.Bind("Settings", "Minimum encounter chance time", 900, "Minimum time in seconds to get a chance roll for an encounter, a random amount of time in the configured time range will be added to this.");
+            generateEncounterTimeRange = config.Bind("Settings", "Time range for encounter chance", 300, "Time range in seconds after minimum time when an encounter chance will happen.");
             enableFlotsam = config.Bind("Settings", "Enable flotsam encounters", true, "Enable flotsam encounters.");
             controlSeaLifeMod = config.Bind("Settings", "Control SeaLifeMod spawns", true, "Use this mod to control SeaLifeMod spawns.");
             enableDenseFog = config.Bind("Settings", "Enable dense fog encounters", true, "Enable dense fog encounters.");

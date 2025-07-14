@@ -28,7 +28,21 @@ namespace RandomEncounters
         //"24 barrel spices",
         //"25 crate grain",
         //"26 crate medicine",
-        //"27 crate seafood"
+        //"27 crate seafood",
+        //201 crate venison
+        //202 crate truffles
+        //206 barrel mead
+        //212 crate rice
+        //213 crate oranges
+        //214 crate forest mushrooms
+        //216 crate cave mushrooms
+        //219 leather
+        //220 rabbit furs
+        //222 wool
+        //223 olive oil
+        //224 apples
+        //227 sulfur
+        //228 barrel cider
 
         //consumables
         //"104 crate of fishing hooks",
@@ -50,14 +64,20 @@ namespace RandomEncounters
         //"317 crate of tobacco brown",
         //"319 crate of tobacco blue"
 
-        private static readonly int[] _cargos = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 19, 24, 25, 26, 27 };
+        private static readonly int[] _cargos = 
+        { 
+            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 
+            11, 13, 14, 15, 16, 17, 18, 19, 24, 25,
+            26, 27, 201, 202, 206, 212, 213, 214, 216, 219,
+            220, 222, 223, 224, 227, 228,
+        };
         private static readonly int[] _consumables = { 104, 108, 131, 132 };
         private static readonly int[] _bottles = { 55, 56, 57, 58, 59 };
         private static readonly int[] _tobaccoCrates = { 311, 313, 315, 319 };
 
         private const int MAX_CARGO_TYPES = 4;
         private const int MAX_CARGOS = 3;
-        private const int MAX_CONSUME_TPYES = 2;
+        private const int MAX_CONSUME_TYPES = 2;
 
         internal static void Spawn(Vector3 spawnPoint)
         {
@@ -74,7 +94,7 @@ namespace RandomEncounters
                 }
             }
 
-            for (int i = 0; i < Random.Range(1, MAX_CONSUME_TPYES); i++)
+            for (int i = 0; i < Random.Range(1, MAX_CONSUME_TYPES); i++)
             {
                 var choice = Random.Range(0, _consumables.Length - 1);
                 LogDebug($"Choice: {_consumables[choice]}");
@@ -98,9 +118,7 @@ namespace RandomEncounters
             var tobaccoAmount = (float)System.Math.Round((decimal)Random.Range(0, tobaccoPrefabGO.GetComponent<ShipItem>().amount));
             SpawnItem(spawnPoint, tobaccoPrefabGO, tobaccoAmount);
 
-            SpawnItem(spawnPoint, AssetLoader.Hull, 1f, true);
-            SpawnItem(spawnPoint, AssetLoader.Mast, 1f, true);
-            SpawnItem(spawnPoint, AssetLoader.Bowsprit, 1f, true);
+            SpawnItem(spawnPoint, AssetLoader.SmallWreck, 1f, true);
         }
 
         internal static void SpawnItem(Vector3 spawnPoint, GameObject prefabGO, float amount, bool wreckage = false)

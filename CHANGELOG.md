@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.2.1] - 2025-07-14
+
+### Updated
+- Flotsam wreck to be an actual small boat instead of a hull.
+
+### Added
+- Config option to set the time range for when a encounter chance occurs.
+- Config option to increase the max roll number to decrease chance for an encounter.
+
 ## [v1.2.0] - 2025-05-08
 
 ### Updated

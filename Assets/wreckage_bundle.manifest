@@ -1,12 +1,12 @@
 ManifestFileVersion: 0
-CRC: 2900172554
+CRC: 1327484001
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: a955411750b4cf48cd81eeaea2f1d381
+    Hash: 8067c607e6144c34ba2ec05b6c47c332
   TypeTreeHash:
     serializedVersion: 2
-    Hash: 7623b1fd87db919cd77263ee62757b61
+    Hash: 7a07296f2869cedc4d0cf2b07ef76b5e
 HashAppended: 0
 ClassTypes:
 - Class: 1
@@ -30,17 +30,18 @@ ClassTypes:
 - Class: 64
   Script: {instanceID: 0}
 - Class: 114
-  Script: {fileID: 11500000, guid: 483dc0e3d9b045f45bc83d9d1cd2945d, type: 3}
+  Script: {fileID: 11500000, guid: 93821dd0b52f6794dbef880e6f006765, type: 3}
 - Class: 114
-  Script: {fileID: 11500000, guid: ce1d4d865df5a0945b7339460857cfad, type: 3}
+  Script: {fileID: 11500000, guid: 72de89c3c1dfa2c4b93f387799c25b74, type: 3}
 - Class: 114
-  Script: {fileID: 11500000, guid: 8aacdd6d8d57903419b72a05da009c4b, type: 3}
+  Script: {fileID: 11500000, guid: 3406a2970a834fc4bbd77dd230d852b6, type: 3}
 - Class: 115
+  Script: {instanceID: 0}
+- Class: 134
   Script: {instanceID: 0}
 - Class: 136
   Script: {instanceID: 0}
 Assets:
-- Assets/CustomPrefabs/mast.prefab
-- Assets/CustomPrefabs/bowsprit.prefab
-- Assets/CustomPrefabs/hull.prefab
+- Assets/Custom/small_wreck.prefab
+- Assets/Custom/hull.prefab
 Dependencies: []

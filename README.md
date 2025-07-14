@@ -15,7 +15,8 @@ These are the encounters that currently are a part of this mod:
 
 * If this mod controls the SeaLifeMod mod
 * Enable/disable: flotsam encounter, dense fog encounter, intense storm encounter, fishing bonanza encounter
-* Minimum amount of time between chance rolls for an encounter. Chances occur at a random point within a range of time, this is the minimum and the maximum is the minimum plus 5 minutes
+* Minimum amount of time between chance rolls for an encounter. There is a configurable time range added to this. Encounter chances happen at some point in this time range.
+* Option to increase the max number you could roll, decreasing the chance for an encounter.
 * The amount of time the dense fog, intense storm, and fishing bonanza encounters lasts
 
 ### Requires

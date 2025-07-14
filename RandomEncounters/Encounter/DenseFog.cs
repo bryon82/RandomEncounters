@@ -12,11 +12,11 @@ namespace RandomEncounters
         public static Dictionary<AudioSource, float> WaveAudioSources { get; private set; } = new Dictionary<AudioSource, float>();
         public static (AudioSource source, float origVolume) WindAudioSource { get; private set; } = (null, 0f);
 
-        private static bool s_clearFog = true;        
-        private static float s_currentFogDensity = 0f;
-        private static float s_originalFogDensity = 0f;
+        private static bool _clearFog = true;
+        private static float _currentFogDensity = 0f;
+        private static float _originalFogDensity = 0f;
 
-        private const float MAX_FOG_DENSITY = 0.06f;        
+        private const float MAX_FOG_DENSITY = 0.06f;
 
         [HarmonyPatch(typeof(OceanColorBlender))]
         private class OceanColorBlenderPatches
@@ -28,18 +28,18 @@ namespace RandomEncounters
                 if (!IsRunning) 
                     return;
 
-                s_originalFogDensity = s_originalFogDensity == 0f ? palette.fogDensity : s_originalFogDensity;
-                s_currentFogDensity = s_currentFogDensity == 0f ? palette.fogDensity : s_currentFogDensity;
+                _originalFogDensity = _originalFogDensity == 0f ? palette.fogDensity : _originalFogDensity;
+                _currentFogDensity = _currentFogDensity == 0f ? palette.fogDensity : _currentFogDensity;
 
-                if (s_clearFog && s_currentFogDensity > s_originalFogDensity) s_currentFogDensity -= 0.00001f;
-                if (!s_clearFog && s_currentFogDensity < MAX_FOG_DENSITY) s_currentFogDensity += 0.00001f;
-                palette.fogDensity = s_currentFogDensity;
+                if (_clearFog && _currentFogDensity > _originalFogDensity) _currentFogDensity -= 0.00001f;
+                if (!_clearFog && _currentFogDensity < MAX_FOG_DENSITY) _currentFogDensity += 0.00001f;
+                palette.fogDensity = _currentFogDensity;
 
-                if (s_clearFog && s_currentFogDensity <= s_originalFogDensity)
+                if (_clearFog && _currentFogDensity <= _originalFogDensity)
                 {
                     IsRunning = false;
-                    s_currentFogDensity = 0f;
-                    s_originalFogDensity = 0f;
+                    _currentFogDensity = 0f;
+                    _originalFogDensity = 0f;
                     Traverse.Create(GameObject.Find("wind").GetComponent<Wind>()).Field("timer").SetValue(0);
                 }
             }
@@ -122,14 +122,14 @@ namespace RandomEncounters
                 WaveAudioSources[source] = source.volume;
             }
             WindAudioSource = (WindAudioSource.source, WindAudioSource.source.volume);
-            s_clearFog = false;
+            _clearFog = false;
             IsRunning = true;
         }
 
         public static void ClearFog()
         {
             LogDebug($"Clearing fog");
-            s_clearFog = true;
+            _clearFog = true;
         }
     }
 }
