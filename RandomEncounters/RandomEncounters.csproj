@@ -94,7 +94,8 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)$(AssemblyName).VS.props" />
   <ItemGroup>
-    <_CopyItemsAssets Include="$(SolutionDir)\Assets\**\*.*" />
+    <_CopyItemsAssets Include="C:\Users\Bryon\dev\projects\SailwindMods\RandomEncounters\Assets\wreckage_bundle" />
+    <_CopyItemsAssets Include="C:\Users\Bryon\dev\projects\SailwindMods\RandomEncounters\Assets\wreckage_bundle.manifest" />
   </ItemGroup>
   <Target Name="AfterBuild">
     <RemoveDir Directories="$(BepInExPluginsDirectory)\$(ModName)" />

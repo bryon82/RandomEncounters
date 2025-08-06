@@ -3,7 +3,6 @@ using System.Linq;
 using UnityEngine;
 using static RandomEncounters.Configs;
 using static RandomEncounters.RE_Plugin;
-using static UnityEngine.GraphicsBuffer;
 
 namespace RandomEncounters
 {
@@ -31,13 +30,13 @@ namespace RandomEncounters
         {
             SeaLifeMod.CheckWhaleDistance();
 
-             
+            /* 
             // for testing
             if (Input.GetKeyDown(KeyCode.P))
             {
                 Generate();
             }
-            
+            */
         }
 
         private IEnumerator ScheduleEncounter()
@@ -76,7 +75,7 @@ namespace RandomEncounters
             var roll = Random.Range(1, rollRange);
             LogDebug($"Roll: {roll}");
 
-            switch (50)
+            switch (roll)
             {
                 case int n when n <= 10:
                     GenerateFlotsam();
