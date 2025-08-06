@@ -1,8 +1,9 @@
 ﻿using System.Collections;
 using System.Linq;
 using UnityEngine;
-using static RandomEncounters.RE_Plugin;
 using static RandomEncounters.Configs;
+using static RandomEncounters.RE_Plugin;
+using static UnityEngine.GraphicsBuffer;
 
 namespace RandomEncounters
 {
@@ -30,13 +31,13 @@ namespace RandomEncounters
         {
             SeaLifeMod.CheckWhaleDistance();
 
-            /* 
+             
             // for testing
             if (Input.GetKeyDown(KeyCode.P))
             {
                 Generate();
             }
-            */
+            
         }
 
         private IEnumerator ScheduleEncounter()
@@ -75,7 +76,7 @@ namespace RandomEncounters
             var roll = Random.Range(1, rollRange);
             LogDebug($"Roll: {roll}");
 
-            switch (roll)
+            switch (50)
             {
                 case int n when n <= 10:
                     GenerateFlotsam();
@@ -183,10 +184,11 @@ namespace RandomEncounters
 
         private IEnumerator GenerateFishingBonanza()
         {
-            if (!enableFishingBonanza.Value ||
-            GameState.currentBoat == null ||
-            WeatherStorms.instance.InvokePrivateMethod<float>("GetNormalizedDistance") < 0.75f)
+            var stormDistance = WeatherStorms.instance.InvokePrivateMethod<float>("GetNormalizedDistance");
+
+            if (!enableFishingBonanza.Value || GameState.currentBoat == null || stormDistance < 0.75f)
             {
+                LogDebug($"Storm too close for fishing bonanza {stormDistance} {stormDistance < 0.75f}");
                 yield break;
             }
 
@@ -201,15 +203,45 @@ namespace RandomEncounters
             if (!seagulls.activeInHierarchy) seagulls.SetActive(true);
             seagulls.GetComponent<AudioSource>().PlayOneShot(seagulls.GetComponent<AudioSource>().clip);
             var seagullsPS = seagulls.GetComponent<ParticleSystem>();
+            
+            var main = seagullsPS.main;
+            main.maxParticles = 25;
+            main.startLifetime = fishingBonanzaDuration.Value;                        
+            main.startRotation = 0f;
+            main.startRotation3D = false;
+                        
+            var rol = seagullsPS.rotationOverLifetime;
+            rol.enabled = false;
+            rol.x = 0f;
+            rol.y = 0f;
+            rol.z = 0f;
+                        
+            var vol = seagullsPS.velocityOverLifetime;
+            vol.enabled = true;
+            vol.orbitalX = 0f;
+            vol.orbitalY = 0f;
+            vol.orbitalZ = 0f;
+            vol.orbitalXMultiplier = 0;
+            vol.orbitalYMultiplier = 0;
+            vol.orbitalZMultiplier = 0;
+                        
+            var rbs = seagullsPS.rotationBySpeed;
+            rbs.enabled = false;
+
+            var seagullPSR = seagulls.GetComponent<ParticleSystemRenderer>();
+            seagullPSR.alignment = ParticleSystemRenderSpace.Local;
+
             var shape = seagullsPS.shape;
-            shape.radius = 100f;
+            shape.shapeType = ParticleSystemShapeType.Rectangle;
+            shape.scale = new Vector3(25, 25, 0.2f);
+
             var emission = seagullsPS.emission;
             if (!emission.enabled) emission.enabled = true;
 
             LogDebug("Starting fishing bonanza");
             FishingBonanza.IsBonanzaActive = true;
             _moveSeagulls = true;
-            StartCoroutine(MoveSegulls(seagulls.transform, GameState.currentBoat));
+            StartCoroutine(MoveSeagulls(seagulls.transform, GameState.currentBoat));
             yield return new WaitForSeconds(fishingBonanzaDuration.Value);
 
             LogDebug("Stopping fishing bonanza");
@@ -218,11 +250,17 @@ namespace RandomEncounters
             Destroy(seagulls);
         }
 
-        private IEnumerator MoveSegulls(Transform seagulls, Transform boat)
+        private IEnumerator MoveSeagulls(Transform seagulls, Transform boat)
         {
             while (_moveSeagulls)
             {
-                seagulls.position = boat.position + boat.up * 60f;
+                var targetPosition = boat.position + boat.up * 40f;
+                seagulls.position = Vector3.Lerp(seagulls.position, targetPosition, 0.2f * Time.deltaTime);
+
+                var newRotation = seagulls.eulerAngles;
+                newRotation.y = Mathf.LerpAngle(seagulls.eulerAngles.y, boat.eulerAngles.y - 90, 0.2f * Time.deltaTime);
+                seagulls.rotation = Quaternion.Euler(newRotation);
+
                 yield return null;
             }
         }

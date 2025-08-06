@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.2.2] - 2025-08-06
+
+### Updated
+- Flight pattern of seagulls in fishing bonanza so that they don't fly sideways.
+
+### Added
+- Fishing bonanza HooksHangMore compatibility.
+
 ## [v1.2.1] - 2025-07-14
 
 ### Updated

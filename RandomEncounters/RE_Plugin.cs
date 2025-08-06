@@ -13,13 +13,15 @@ namespace RandomEncounters
     {
         public const string PLUGIN_GUID = "com.raddude82.randomencounters";
         public const string PLUGIN_NAME = "RandomEncounters";
-        public const string PLUGIN_VERSION = "1.2.1";
+        public const string PLUGIN_VERSION = "1.2.2";
 
         public const string SEALIFEMOD_GUID = "com.yourname.sailwind.sealifeplugin";
         public const string IDLEFISHING_GUID = "ISA_IdleFishing";
+        public const string HOOKSHANGMORE_GUID = "com.raddude82.hookshangmore";
 
         internal static BaseUnityPlugin SeaLifeModPluginInstance { get; private set; }
         internal static bool IdleFishingPluginDetected { get; private set; } = false;
+        internal static bool HooksHangMorePluginDetected { get; private set; } = false;
 
         internal static RE_Plugin Instance { get; private set; }
         internal static Harmony HarmonyInstance { get; private set; }
@@ -65,6 +67,12 @@ namespace RandomEncounters
                 {
                     LogInfo($"{IDLEFISHING_GUID} found");
                     IdleFishingPluginDetected = true;
+                }
+
+                if (metadata.GUID.Equals(HOOKSHANGMORE_GUID))
+                {
+                    LogInfo($"{HOOKSHANGMORE_GUID} found");
+                    HooksHangMorePluginDetected = true;
                 }
             }
 

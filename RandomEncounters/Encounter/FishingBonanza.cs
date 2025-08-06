@@ -24,7 +24,7 @@ namespace RandomEncounters
                 if (!IsBonanzaActive ||
                     __instance.currentFish != null ||
                     ___rod.health <= 0f ||
-                    (!(bool)___rod.held && !IdleFishingPluginDetected) ||
+                    (!(bool)___rod.held && !IdleFishingPluginDetected && !HooksHangMorePluginDetected) ||
                     !___floater.InWater ||
                     ___bobberJoint.linearLimit.limit <= 1f ||
                     __instance.gameObject.layer == 16)
@@ -38,7 +38,7 @@ namespace RandomEncounters
                 if (___fishTimer <= 0f)
                 {
                     ___fishTimer = 1f;
-                    var multiplier = (bool)___rod.held ? 20f : 2f;
+                    var multiplier = (bool)___rod.held ? 20f : 3f;
                     if (Random.Range(0f, 100f) < num * multiplier)
                     {
                         __instance.CatchFish();
