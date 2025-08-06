@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.2.3] - 2025-08-06
+
+### Removed
+- Testing code accidentally left in.
+
 ## [v1.2.2] - 2025-08-06
 
 ### Updated
