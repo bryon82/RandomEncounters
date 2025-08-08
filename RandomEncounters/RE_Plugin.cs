@@ -13,7 +13,7 @@ namespace RandomEncounters
     {
         public const string PLUGIN_GUID = "com.raddude82.randomencounters";
         public const string PLUGIN_NAME = "RandomEncounters";
-        public const string PLUGIN_VERSION = "1.2.3";
+        public const string PLUGIN_VERSION = "1.2.4";
 
         public const string SEALIFEMOD_GUID = "com.yourname.sailwind.sealifeplugin";
         public const string IDLEFISHING_GUID = "ISA_IdleFishing";
