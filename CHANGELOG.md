@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.2.5] - 2025-08-31
+
+### Updated
+- Increased distance from the player's ship where the wreck and items spawn during a flotsam encounter.
+- Unsealed all sealable crates that spawn during a flotsam encounter.
+
 ## [v1.2.4] - 2025-08-08
 
 ### Fixed

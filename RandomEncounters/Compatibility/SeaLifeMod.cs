@@ -61,8 +61,8 @@ namespace RandomEncounters
         {
             if (SeaLifeModPluginInstance == null)
                 yield break;
-                        
-            var whalePrefab = SeaLifeModPluginInstance.GetPrivateField<GameObject>("animalPrefab");                 
+
+            var whalePrefab = SeaLifeModPluginInstance.GetPrivateField<GameObject>("animalPrefab");
             s_whaleSpawns = new List<GameObject>();
 
             yield return new WaitUntil(() => Refs.shiftingWorld != null && _allSoundsLoaded);
@@ -142,10 +142,10 @@ namespace RandomEncounters
         {
             _soundsToLoad += count;
             AudioClip[] clips = new AudioClip[count];
-           
+
             for (int i = 0; i < count; i++)
             {
-                var clipName = string.Format("{0}{1:00}", baseName, i + 1);                
+                var clipName = string.Format("{0}{1:00}", baseName, i + 1);
                 AssetBundleRequest request = _assetBundle.LoadAssetAsync<AudioClip>($"Assets/Audio/{clipName}.wav");
                 yield return request;
                 clips[i] = request.asset as AudioClip;
@@ -158,7 +158,7 @@ namespace RandomEncounters
             }
 
             onComplete(clips);
-        }  
+        }
     }
 
     public class SeaLifeModPatches

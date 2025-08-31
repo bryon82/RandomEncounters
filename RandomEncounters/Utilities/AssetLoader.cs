@@ -36,7 +36,7 @@ namespace RandomEncounters
             var bundlePath = FindAssetPath("wreckage_bundle");
             if (string.IsNullOrEmpty(bundlePath))
             {
-                LogError("Asset bundle path not found.");
+                LogError("Asset bundle path not found");
                 yield break;
             }
 
@@ -53,7 +53,12 @@ namespace RandomEncounters
             SmallWreck = request.allAssets.FirstOrDefault(a => a.name == "small_wreck") as GameObject;
 
             if (Hull == null || SmallWreck == null)
-                LogError("Failed to load all assets from the bundle.");
+            {
+                LogError("Failed to load all assets from the bundle");
+                yield break;
+            }
+                
+            LogInfo("Assets loaded");
         }
     }
 }

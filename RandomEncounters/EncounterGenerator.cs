@@ -30,7 +30,7 @@ namespace RandomEncounters
         {
             SeaLifeMod.CheckWhaleDistance();
 
-            /* 
+            /*
             // for testing
             if (Input.GetKeyDown(KeyCode.P))
             {
@@ -107,7 +107,7 @@ namespace RandomEncounters
             if (!enableFlotsam.Value) 
                 return;
 
-            var spawnPoint = GameState.currentBoat.position + GameState.currentBoat.right * 100f + GameState.currentBoat.forward * Random.Range(-30, 30);
+            var spawnPoint = GameState.currentBoat.position + GameState.currentBoat.right * 200f + GameState.currentBoat.forward * Random.Range(-30, 30);
             Flotsam.Spawn(spawnPoint);
         }
 
