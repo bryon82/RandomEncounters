@@ -119,14 +119,16 @@ namespace RandomEncounters
                 yield break;
 
             var boatPosition = GameState.currentBoat.position;
+            var spawnCount = Random.Range(2, 5);
+            var spawnDelay = new WaitForSeconds(2f);
 
-            for (int i = 0; i < Random.Range(2, 5); i++)
+            for (int i = 0; i < spawnCount; i++)
             {
                 var randomOffset = new Vector3(Random.Range(-200, 200), -8, Random.Range(-200, 200));
-                yield return new WaitForSeconds(2f);
+                yield return spawnDelay;
                 SeaLifeMod.SpawnWhale(i, boatPosition + randomOffset);
             }
-            yield return new WaitForSeconds(2f);
+            yield return spawnDelay;
             SeaLifeMod.TriggerEntranceAnimation();
         }
 
@@ -142,14 +144,22 @@ namespace RandomEncounters
                 yield break;
 
             DenseFog.Spawn();
-            for (int i = 0; i < 4000; i++)
+            var waveAudioSources = DenseFog.WaveAudioSources.Keys.ToList();
+            var windAudioSource = DenseFog.WindAudioSource.source;
+            var windOrigVolume = DenseFog.WindAudioSource.origVolume;
+            const float fadeOutDuration = 4f;
+            for (var t = 0f; t < fadeOutDuration; t += Time.deltaTime)
             {
-                foreach (var audioSource in DenseFog.WaveAudioSources.Keys)
+                var lerpValue = t / fadeOutDuration;
+                foreach (var audioSource in waveAudioSources)
                 {
-                    audioSource.volume = Mathf.Lerp(DenseFog.WaveAudioSources[audioSource], 0f, i / 1000f);
+                    audioSource.volume = Mathf.Lerp(DenseFog.WaveAudioSources[audioSource], 0f, lerpValue);
                 }
-                DenseFog.WindAudioSource.source.volume = Mathf.Lerp(DenseFog.WindAudioSource.origVolume, 0.0001f, i / 1000f);
-                yield return new WaitForSeconds(0.001f);
+                if (windAudioSource != null)
+                {
+                    windAudioSource.volume = Mathf.Lerp(windOrigVolume, 0.0001f, lerpValue);
+                }
+                yield return null;
             }
 
             for (int i = 0; i < 4; i++)
@@ -166,14 +176,19 @@ namespace RandomEncounters
             yield return new WaitForSeconds(fogDuration.Value);
 
             DenseFog.ClearFog();
-            for (int i = 0; i < 1000; i++)
+            const float fadeInDuration = 4f;
+            for (var t = 0f; t < fadeInDuration; t += Time.deltaTime)
             {
-                foreach (var audioSource in DenseFog.WaveAudioSources.Keys)
+                var lerpValue = t / fadeInDuration;
+                foreach (var audioSource in waveAudioSources)
                 {
-                    audioSource.volume = Mathf.Lerp(0f, DenseFog.WaveAudioSources[audioSource], i / 1000f);
+                    audioSource.volume = Mathf.Lerp(0f, DenseFog.WaveAudioSources[audioSource], lerpValue);
                 }
-                DenseFog.WindAudioSource.source.volume = Mathf.Lerp(0.0001f, DenseFog.WindAudioSource.origVolume,  i / 1000f);
-                yield return new WaitForSeconds(0.001f);
+                if (windAudioSource != null)
+                {
+                    windAudioSource.volume = Mathf.Lerp(0.0001f, windOrigVolume, lerpValue);
+                }
+                yield return null;
             }
         }
 

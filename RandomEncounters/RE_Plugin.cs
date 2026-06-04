@@ -9,11 +9,12 @@ namespace RandomEncounters
     [BepInPlugin(PLUGIN_GUID, PLUGIN_NAME, PLUGIN_VERSION)]
     [BepInDependency(SEALIFEMOD_GUID, BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency(IDLEFISHING_GUID, BepInDependency.DependencyFlags.SoftDependency)]
+    [BepInDependency(HOOKSHANGMORE_GUID, BepInDependency.DependencyFlags.SoftDependency)]
     public class RE_Plugin : BaseUnityPlugin
     {
         public const string PLUGIN_GUID = "com.raddude82.randomencounters";
         public const string PLUGIN_NAME = "RandomEncounters";
-        public const string PLUGIN_VERSION = "1.2.5";
+        public const string PLUGIN_VERSION = "1.3.0";
 
         public const string SEALIFEMOD_GUID = "com.yourname.sailwind.sealifeplugin";
         public const string IDLEFISHING_GUID = "ISA_IdleFishing";
@@ -58,20 +59,20 @@ namespace RandomEncounters
                 var metadata = plugin.Value.Metadata;
                 if (Configs.controlSeaLifeMod.Value && metadata.GUID.Equals(SEALIFEMOD_GUID))
                 {
-                    LogInfo($"{SEALIFEMOD_GUID} found");
+                    LogInfo("SealLifeMod mod found");
                     SeaLifeModPluginInstance = plugin.Value.Instance;
                     SeaLifeMod.PatchMod();
                 }
 
                 if (metadata.GUID.Equals(IDLEFISHING_GUID))
                 {
-                    LogInfo($"{IDLEFISHING_GUID} found");
+                    LogInfo("IdleFishing mod found");
                     IdleFishingPluginDetected = true;
                 }
 
                 if (metadata.GUID.Equals(HOOKSHANGMORE_GUID))
                 {
-                    LogInfo($"{HOOKSHANGMORE_GUID} found");
+                    LogInfo("HooksHangMore mod found");
                     HooksHangMorePluginDetected = true;
                 }
             }

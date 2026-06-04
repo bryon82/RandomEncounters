@@ -88,7 +88,10 @@ namespace RandomEncounters
             [HarmonyPatch("Start")]
             public static void GetAudioSource(AudioSource ___audio)
             {
-                WaveAudioSources.Add(___audio, ___audio.volume);
+                if (!WaveAudioSources.ContainsKey(___audio))
+                {
+                    WaveAudioSources.Add(___audio, ___audio.volume);
+                }
             }
         }
 
@@ -121,7 +124,10 @@ namespace RandomEncounters
             {
                 WaveAudioSources[source] = source.volume;
             }
-            WindAudioSource = (WindAudioSource.source, WindAudioSource.source.volume);
+            if (WindAudioSource.source != null)
+            {
+                WindAudioSource = (WindAudioSource.source, WindAudioSource.source.volume);
+            }
             _clearFog = false;
             IsRunning = true;
         }

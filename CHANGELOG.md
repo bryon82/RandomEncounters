@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.3.0] - 2026-06-03
+
+### Updated
+- Changed the release process so hopefully some linux users will no longer have issues when unzipping the release file.
+
+### Performance Improvements
+- Changed the way the dense fog encounter wave/wind sound fade in and out to reduce number of iterations. Minor performance gain.
+
 ## [v1.2.5] - 2025-08-31
 
 ### Updated
