@@ -4,19 +4,19 @@ Generates encounters while you are out at sea. You must be roughly 10 miles away
 
 ## Features
 
-These are the encounters that currently are a part of this mod:
-* Partially full cargo and ship wreckage from an unfortunate vessel. Low chance for this encounter. <details><summary>click to view chance percent</summary>15%</details>
-* An eerily dense fog with almost no wind. Very low chance for this encounter. <details><summary>click to view chance percent</summary>5%</details>
-* Generates whales from the fantastic mod [SeaLifeMod](https://github.com/BryanP-JP19/SailwindSeaLifeMod) by Discord user BryanPhillips, if it is installed, at a more random cadence. Medium chance for this encounter. <details><summary>click to view chance percent</summary>30%</details>
-* An intense storm that blows in fast. Very low chance for this encounter. <details><summary>click to view chance percent</summary>5%</details>
-* A fishing bonanza, heralded by seagulls circling your boat, where fish are fast to hook on your fishing line. Compatible with IdleFishing mod. Low chance for this encounter. <details><summary>click to view chance percent</summary>10%</details>
+These are the encounters that currently are a part of this mod. There is a configurable chance for an encounter, if an encounter is triggered, a type of encounter is selected at random. Each type has a weighted value in the selection process:
+* Partially full cargo and ship wreckage from an unfortunate vessel. Low chance for this encounter. <details><summary>click to view weighted value</summary>15</details>
+* An eerily dense fog with almost no wind. Very low chance for this encounter. <details><summary>click to view weighted value</summary>10</details>
+* Generates whales from the fantastic mod [SeaLifeMod](https://github.com/BryanP-JP19/SailwindSeaLifeMod) by Discord user BryanPhillips, if it is installed, at a more random cadence. Medium chance for this encounter. <details><summary>click to view weighted value</summary>25</details>
+* An intense storm that blows in fast. Very low chance for this encounter. <details><summary>click to view weighted value</summary>5</details>
+* A fishing bonanza, heralded by seagulls circling your boat, where fish are fast to hook on your fishing line. Compatible with IdleFishing mod. Low chance for this encounter. <details><summary>click to view weighted value</summary>10</details>
 
 ### Configurable
 
 * If this mod controls the SeaLifeMod mod
 * Enable/disable: flotsam encounter, dense fog encounter, intense storm encounter, fishing bonanza encounter
 * Minimum amount of time between chance rolls for an encounter. There is a configurable time range added to this. Encounter chances happen at some point in this time range.
-* Option to increase the max number you could roll, decreasing the chance for an encounter.
+* The percent chance an encounter will occur.
 * The amount of time the dense fog, intense storm, and fishing bonanza encounters lasts
 
 ### Requires

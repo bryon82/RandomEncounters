@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using static RandomEncounters.Configs;
@@ -39,6 +40,35 @@ namespace RandomEncounters
             */
         }
 
+        private List<EncounterEntry> BuildEncounterTable()
+        {
+            var table = new List<EncounterEntry>();
+            var seaLifeModActive = controlSeaLifeMod.Value && SeaLifeModPluginInstance != null;
+
+            if (enableFlotsam.Value)
+                table.Add(new EncounterEntry { Name = "Flotsam", Weight = 15, Trigger = GenerateFlotsam });
+
+            if (enableFlotsam.Value && seaLifeModActive)
+                table.Add(new EncounterEntry { Name = "Flotsam and Whales", Weight = 5, Trigger = () => { GenerateFlotsam(); StartCoroutine(GenerateWhales()); } });
+
+            if (seaLifeModActive)
+                table.Add(new EncounterEntry { Name = "Whales", Weight = 25, Trigger = () => StartCoroutine(GenerateWhales()) });
+
+            if (enableDenseFog.Value)
+                table.Add(new EncounterEntry { Name = "Dense Fog", Weight = 5, Trigger = () => StartCoroutine(GenerateDenseFog()) });
+
+            if (enableDenseFog.Value && seaLifeModActive)
+                table.Add(new EncounterEntry { Name = "Dense Fog and Whales", Weight = 5, Trigger = () => { StartCoroutine(GenerateDenseFog()); StartCoroutine(GenerateWhales()); } });
+
+            if (enableFishingBonanza.Value)
+                table.Add(new EncounterEntry { Name = "Fishing Bonanza", Weight = 15, Trigger = () => StartCoroutine(GenerateFishingBonanza()) });
+
+            if (enableIntenseStorm.Value)
+                table.Add(new EncounterEntry { Name = "Intense Storm", Weight = 5, Trigger = () => StartCoroutine(GenerateIntenseStorm()) });
+
+            return table;
+        }
+
         private IEnumerator ScheduleEncounter()
         {
             yield return new WaitUntil(() => GameState.playing);
@@ -71,42 +101,37 @@ namespace RandomEncounters
                 return;
             }
 
-            var rollRange = 100 + Mathf.Abs(encounterRollMaxIncrease.Value);
-            var roll = Random.Range(1, rollRange);
-            LogDebug($"Roll: {roll}");
-
-            switch (roll)
+            if (Random.value > Mathf.Abs(encounterRollChance.Value / 100f))
             {
-                case int n when n <= 10:
-                    GenerateFlotsam();
-                    break;
-                case int n when n > 10 && n <= 15:
-                    GenerateFlotsam();
-                    StartCoroutine(GenerateWhales());
-                    break;
-                case int n when n > 15 && n <= 40:
-                    StartCoroutine(GenerateWhales());
-                    break;
-                case int n when n > 40 && n <= 45:
-                    StartCoroutine(GenerateDenseFog());
-                    break;
-                case int n when n > 45 && n <= 55:
-                    StartCoroutine(GenerateFishingBonanza());
-                    break;
-                case int n when n > 55 && n <= 60:
-                    StartCoroutine(GenerateIntenseStorm());
-                    break;
-                case int n when n > 60:
-                    LogDebug("No encounter this time");
-                    break;
+                LogInfo("No encounter this time");
+                return;
+            }
+
+            var table = BuildEncounterTable();
+            if (table.Count == 0)
+            {
+                LogDebug("No encounters enabled");
+                return;
+            }
+
+            var totalWeight = table.Sum(e => e.Weight);
+            var roll = Random.Range(0, totalWeight);
+
+            var cumulative = 0;
+            foreach (var entry in table)
+            {
+                cumulative += entry.Weight;
+                if (roll < cumulative)
+                {
+                    LogDebug($"Encounter: {entry.Name}");
+                    entry.Trigger();
+                    return;
+                }
             }
         }
 
         private static void GenerateFlotsam()
         {
-            if (!enableFlotsam.Value) 
-                return;
-
             var spawnPoint = GameState.currentBoat.position + GameState.currentBoat.right * 200f + GameState.currentBoat.forward * Random.Range(-30, 30);
             Flotsam.Spawn(spawnPoint);
         }
@@ -115,9 +140,6 @@ namespace RandomEncounters
 
         private IEnumerator GenerateWhales()
         {
-            if (!controlSeaLifeMod.Value || SeaLifeModPluginInstance == null) 
-                yield break;
-
             var boatPosition = GameState.currentBoat.position;
             var spawnCount = Random.Range(2, 5);
             var spawnDelay = new WaitForSeconds(2f);
@@ -138,9 +160,7 @@ namespace RandomEncounters
 
         private IEnumerator GenerateDenseFog()
         {
-            if (!enableDenseFog.Value ||
-                DenseFog.IsRunning ||
-                WeatherStorms.instance.InvokePrivateMethod<float>("GetNormalizedDistance") < 0.75f)
+            if (DenseFog.IsRunning || WeatherStorms.instance.InvokePrivateMethod<float>("GetNormalizedDistance") < 0.75f)
                 yield break;
 
             DenseFog.Spawn();
@@ -200,7 +220,7 @@ namespace RandomEncounters
         {
             var stormDistance = WeatherStorms.instance.InvokePrivateMethod<float>("GetNormalizedDistance");
 
-            if (!enableFishingBonanza.Value || GameState.currentBoat == null || stormDistance < 0.75f)
+            if (GameState.currentBoat == null || stormDistance < 0.75f)
             {
                 LogDebug($"Storm too close for fishing bonanza {stormDistance} {stormDistance < 0.75f}");
                 yield break;
@@ -285,9 +305,6 @@ namespace RandomEncounters
 
         private IEnumerator GenerateIntenseStorm()
         {
-            if (!enableIntenseStorm.Value)
-                yield break;
-
             var weatherStorms = WeatherStorms.instance;
             var storm = weatherStorms.GetCurrentStorm();
             var lightning = storm.transform.GetChild(3).GetComponent<WanderingStormLightning>();

@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.4.0] - 2026-06-16
+
+### Changed
+- Changed the way encounters are triggered. Encounters now have a configuragble percent chance to occur, default 60%. When an encounter is triggered, a mod from a list of the enabled mods will then be chosen at random. The encounter types have weights, so some will be chosen more often than others. See the readme for the weights.
+- The configs have been changed to remove the max roll increase and add the percent chance for an encounter.
+
 ## [v1.3.0] - 2026-06-03
 
 ### Updated

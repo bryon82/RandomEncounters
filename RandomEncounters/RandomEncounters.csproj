@@ -82,6 +82,7 @@
     <Compile Include="Compatibility\SeaLifeMod.cs" />
     <Compile Include="EncounterGenerator.cs" />
     <Compile Include="Encounter\DenseFog.cs" />
+    <Compile Include="Encounter\EncounterEntry.cs" />
     <Compile Include="Encounter\FishingBonanza.cs" />
     <Compile Include="Encounter\Flotsam.cs" />
     <Compile Include="Encounter\IntenseStorm.cs" />

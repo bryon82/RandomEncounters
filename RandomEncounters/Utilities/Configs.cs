@@ -4,7 +4,7 @@ namespace RandomEncounters
 {
     internal class Configs
     {
-        internal static ConfigEntry<int> encounterRollMaxIncrease;
+        internal static ConfigEntry<int> encounterRollChance;
         internal static ConfigEntry<int> generateEncounterMinTime;
         internal static ConfigEntry<int> generateEncounterTimeRange;
         internal static ConfigEntry<bool> enableFlotsam;
@@ -20,58 +20,56 @@ namespace RandomEncounters
         {
             var config = RE_Plugin.Instance.Config;
 
-            encounterRollMaxIncrease = config.Bind(
-                "Settings",
-                "Encounter roll max increase",
-                0,
-                "Default chance for an encounter to happen is 60/100. Increasing this increases the bottom number, so your chances of an encounter decrease.");
+            encounterRollChance = config.Bind(
+                "Encounter Generation Settings",
+                "Chance an encounter occurs",
+                60,
+                new ConfigDescription(
+                    "Percent chance an encounter occurs.",
+                    new AcceptableValueRange<int>(0, 100)));
             generateEncounterMinTime = config.Bind(
-                "Settings",
+                "Encounter Generation Settings",
                 "Minimum encounter chance time",
                 900,
-                "Minimum time in seconds to get a chance roll for an encounter, a random amount of time in the configured time range will be added to this.");
+                "Minimum time in seconds to get a chance roll for an encounter, a random amount of time from the 'Variation in encounter chance time' setting will be added to this.");
             generateEncounterTimeRange = config.Bind(
-                "Settings",
-                "Time range for encounter chance",
+                "Encounter Generation Settings",
+                "Variation in encounter chance time",
                 300,
-                "Time range in seconds after minimum time when an encounter chance will happen.");
+                "A random number of seconds from 0 up to the value specified will be added to the 'Minimum encounter chance time' setting.");
             enableFlotsam = config.Bind(
-                "Settings",
+                "Encounter Types",
                 "Enable flotsam encounters",
-                true,
-                "Enable flotsam encounters.");
+                true);
             controlSeaLifeMod = config.Bind(
-                "Settings",
+                "Encounter Types",
                 "Control SeaLifeMod spawns",
                 true,
                 "Use this mod to control SeaLifeMod spawns.");
             enableDenseFog = config.Bind(
-                "Settings",
+                "Encounter Types",
                 "Enable dense fog encounters",
-                true,
-                "Enable dense fog encounters.");
+                true);
+            enableFishingBonanza = config.Bind(
+                "Encounter Types",
+                "Enable fishing bonanza encounters",
+                true);
+            enableIntenseStorm = config.Bind(
+                "Encounter Types",
+                "Enable intense storm encounters",
+                true);
             fogDuration = config.Bind(
-                "Settings",
+                "Encounter Settings",
                 "Fog encounter duration",
                 300,
                 "In seconds, the amount of time the fog encounter lasts.");
-            enableFishingBonanza = config.Bind(
-                "Settings",
-                "Enable fishing bonanza encounters",
-                true,
-                "Enable fishing bonanza encounters.");
             fishingBonanzaDuration = config.Bind(
-                "Settings",
+                "Encounter Settings",
                 "Fishing bonanza duration",
                 300,
                 "In seconds, the amount of time the fishing bonanza encounter lasts.");
-            enableIntenseStorm = config.Bind(
-                "Settings",
-                "Enable intense storm encounters",
-                true,
-                "Enable intense storm encounters.");
             intenseStormDuration = config.Bind(
-                "Settings",
+                "Encounter Settings",
                 "Intense storm duration",
                 300,
                 "In seconds, the amount of time the intense storm encounter lasts.");
