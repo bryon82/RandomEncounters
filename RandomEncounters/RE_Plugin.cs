@@ -12,13 +12,13 @@ namespace RandomEncounters
     [BepInDependency(HOOKSHANGMORE_GUID, BepInDependency.DependencyFlags.SoftDependency)]
     public class RE_Plugin : BaseUnityPlugin
     {
-        public const string PLUGIN_GUID = "com.raddude82.randomencounters";
+        public const string PLUGIN_GUID = "com.raddude.randomencounters";
         public const string PLUGIN_NAME = "RandomEncounters";
-        public const string PLUGIN_VERSION = "1.4.0";
+        public const string PLUGIN_VERSION = "1.4.1";
 
         public const string SEALIFEMOD_GUID = "com.yourname.sailwind.sealifeplugin";
         public const string IDLEFISHING_GUID = "ISA_IdleFishing";
-        public const string HOOKSHANGMORE_GUID = "com.raddude82.hookshangmore";
+        public const string HOOKSHANGMORE_GUID = "com.raddude.hookshangmore";
 
         internal static BaseUnityPlugin SeaLifeModPluginInstance { get; private set; }
         internal static bool IdleFishingPluginDetected { get; private set; } = false;
@@ -75,6 +75,9 @@ namespace RandomEncounters
                     LogInfo("HooksHangMore mod found");
                     HooksHangMorePluginDetected = true;
                 }
+
+                if (SeaLifeModPluginInstance != null && IdleFishingPluginDetected && HooksHangMorePluginDetected)
+                    break;
             }
 
             gameObject.AddComponent<EncounterGenerator>();
