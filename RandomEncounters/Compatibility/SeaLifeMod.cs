@@ -9,7 +9,7 @@ namespace RandomEncounters
 {
     internal class SeaLifeMod
     {
-        private static List<GameObject> s_whaleSpawns;
+        private static List<GameObject> _whaleSpawns;
         private static Type _finWhaleAIType;
         private static Type _effectControllerType;
         private static FastInvokeHandler _triggerRandomAnimation;
@@ -20,10 +20,10 @@ namespace RandomEncounters
         private static AudioClip[] _breachSplashSounds;
         private static AudioClip[] _breachEmergeSounds;
         private static AudioClip[] _tailSplashSounds;
-        private static int _soundsToLoad = 0;
-        private static int _soundsLoaded = 0;
         private static bool _allSoundsLoaded = false;
 
+        private static int _groupsCompleted = 0;
+        private const int TOTAL_GROUPS = 4;
         private const float MAX_DISTANCE = 650f;
 
         public static void PatchMod()
@@ -63,7 +63,7 @@ namespace RandomEncounters
                 yield break;
 
             var whalePrefab = SeaLifeModPluginInstance.GetPrivateField<GameObject>("animalPrefab");
-            s_whaleSpawns = new List<GameObject>();
+            _whaleSpawns = new List<GameObject>();
 
             yield return new WaitUntil(() => Refs.shiftingWorld != null && _allSoundsLoaded);
 
@@ -79,7 +79,7 @@ namespace RandomEncounters
                 effectController.SetPrivateField("tailSplashSounds", _tailSplashSounds);
                 whale.transform.position = Vector3.zero;
                 whale.gameObject.SetActive(false);
-                s_whaleSpawns.Add(whale);
+                _whaleSpawns.Add(whale);
             }
         }
 
@@ -88,7 +88,7 @@ namespace RandomEncounters
             LogDebug("Spawning FinWhale");
             var scale = UnityEngine.Random.Range(0.8f, 1.4f);
             var rotationY = UnityEngine.Random.Range(0, 360);
-            var whale = s_whaleSpawns[i];
+            var whale = _whaleSpawns[i];
             var whaleTransform = whale.transform;
             whaleTransform.position = spawnPosition;
             whaleTransform.rotation = Quaternion.Euler(0f, rotationY, 0f);
@@ -107,7 +107,7 @@ namespace RandomEncounters
             if (_activeWhales == 0)
                 return;
 
-            foreach (var whale in s_whaleSpawns)
+            foreach (var whale in _whaleSpawns)
             {
                 var distance = Vector3.Distance(whale.transform.position, Refs.observerMirror.transform.position);
                 if (whale.activeInHierarchy && distance > MAX_DISTANCE)
@@ -121,16 +121,16 @@ namespace RandomEncounters
 
         private static IEnumerator LoadSoundsAsync()
         {
-            _soundsToLoad = 0;
-            _soundsLoaded = 0;
+            _groupsCompleted = 0;
+            _allSoundsLoaded = false;
             _assetBundle = SeaLifeModPluginInstance.GetPrivateField<AssetBundle>("seaLifeBundle");
 
             Instance.StartCoroutine(LoadAudioClipsAsync("WhaleBlowMed", 6, clips => _blowholeSounds = clips));
             Instance.StartCoroutine(LoadAudioClipsAsync("BreachSplashLarge", 5, clips => _breachSplashSounds = clips));
             Instance.StartCoroutine(LoadAudioClipsAsync("BreachSplashSmall", 6, clips => _breachEmergeSounds = clips));
-            Instance.StartCoroutine(LoadAudioClipsAsync("TailSplash", 4, clips => _tailSplashSounds = clips));            
+            Instance.StartCoroutine(LoadAudioClipsAsync("TailSplash", 4, clips => _tailSplashSounds = clips));
 
-            while (_soundsLoaded < _soundsToLoad)
+            while (_groupsCompleted < TOTAL_GROUPS)
             {
                 yield return null;
             }
@@ -140,24 +140,18 @@ namespace RandomEncounters
 
         private static IEnumerator LoadAudioClipsAsync(string baseName, int count, Action<AudioClip[]> onComplete)
         {
-            _soundsToLoad += count;
-            AudioClip[] clips = new AudioClip[count];
+            var clips = new AudioClip[count];
 
             for (int i = 0; i < count; i++)
             {
                 var clipName = string.Format("{0}{1:00}", baseName, i + 1);
-                AssetBundleRequest request = _assetBundle.LoadAssetAsync<AudioClip>($"Assets/Audio/{clipName}.wav");
+                var request = _assetBundle.LoadAssetAsync<AudioClip>($"Assets/Audio/{clipName}.wav");
                 yield return request;
                 clips[i] = request.asset as AudioClip;
-                _soundsLoaded++;
-            }
-
-            while (_soundsLoaded < _soundsToLoad)
-            {
-                yield return null;
             }
 
             onComplete(clips);
+            _groupsCompleted++;
         }
     }
 

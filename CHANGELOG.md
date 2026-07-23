@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.5.0] - 2026-07-23
+
+### Added
+- Hemp, dyes, rubber, coffee, salt and saffron to the pool of possible cargo items that will spawn during flotsom encounters. 
+- One tea or coffee box will always spawn with a flotsom encounter. 
+
+### Fixed
+- A race condition that would sometimes leave whale sounds not loaded resulting in NullReferenceExceptions.
+
 ## [v1.4.0] - 2026-06-16
 
 ### Changed
