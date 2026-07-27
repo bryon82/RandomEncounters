@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.0.0] - 2027-07-27
+
+### Added
+- API system so other mod authors can easily add encounters to the RandomEncounters pool of encounters. This includes a registry system and events.
+
+### Updated
+- Encounters to use the API system.
+
 ## [v1.5.0] - 2026-07-23
 
 ### Added
