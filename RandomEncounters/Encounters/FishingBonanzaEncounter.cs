@@ -1,5 +1,6 @@
 ﻿using Crest;
 using HarmonyLib;
+using RandomEncounters.API;
 using System.Collections;
 using UnityEngine;
 using static RandomEncounters.RE_Plugin;
@@ -7,24 +8,26 @@ using static RandomEncounters.Configs;
 
 namespace RandomEncounters
 {
-    internal class FishingBonanza
+    internal class FishingBonanzaEncounter : Encounter
     {
         private static bool _isBonanzaActive;
         private static Seagulls _seagulls;
-        private static bool _moveSeagulls;
 
-        internal static IEnumerator Run(MonoBehaviour instance)
+        public override string Name => "Fishing Bonanza";
+        public override int Weight => 15;
+        public override bool IsAvailable() =>
+            enableFishingBonanza.Value
+            && GameState.playing
+            && GameState.currentBoat
+            && !_isBonanzaActive
+            && WeatherStorms.instance.InvokePrivateMethod<float>("GetNormalizedDistance") >= 0.75f;
+
+        public override void Trigger(MonoBehaviour host) => host.StartCoroutine(Run(this));
+
+
+
+        internal static IEnumerator Run(Encounter enc)
         {
-            if (GameState.currentBoat == null || _isBonanzaActive)
-                yield break;
-
-            var stormDistance = WeatherStorms.instance.InvokePrivateMethod<float>("GetNormalizedDistance");
-            if (stormDistance < 0.75f)
-            {
-                LogDebug($"Storm too close for fishing bonanza {stormDistance}");
-                yield break;
-            }
-
             if (_seagulls == null)
                 _seagulls = Refs.shiftingWorld.GetComponentInChildren<Seagulls>(true);
 
@@ -77,29 +80,32 @@ namespace RandomEncounters
 
             LogDebug("Starting fishing bonanza");
             _isBonanzaActive = true;
-            _moveSeagulls = true;
-            instance.StartCoroutine(MoveSeagulls(seagulls.transform, GameState.currentBoat));
-            yield return new WaitForSeconds(fishingBonanzaDuration.Value);
 
-            LogDebug("Stopping fishing bonanza");
-            _isBonanzaActive = false;
-            _moveSeagulls = false;
-            GameObject.Destroy(seagulls);
-        }
+            float endTime = Time.time + fishingBonanzaDuration.Value;
 
-        private static IEnumerator MoveSeagulls(Transform seagulls, Transform boat)
-        {
-            while (_moveSeagulls)
+            while (Time.time < endTime)
             {
-                var targetPosition = boat.position + boat.up * 40f;
-                seagulls.position = Vector3.Lerp(seagulls.position, targetPosition, 0.2f * Time.deltaTime);
+                var targetPosition = GameState.currentBoat.position + GameState.currentBoat.up * 40f;
+                seagulls.transform.position = Vector3.Lerp(
+                    seagulls.transform.position,
+                    targetPosition,
+                    0.2f * Time.deltaTime);
 
-                var newRotation = seagulls.eulerAngles;
-                newRotation.y = Mathf.LerpAngle(seagulls.eulerAngles.y, boat.eulerAngles.y - 90, 0.2f * Time.deltaTime);
-                seagulls.rotation = Quaternion.Euler(newRotation);
+                var euler = seagulls.transform.eulerAngles;
+                euler.y = Mathf.LerpAngle(
+                    euler.y,
+                    GameState.currentBoat.eulerAngles.y - 90f,
+                    0.2f * Time.deltaTime);
+                seagulls.transform.rotation = Quaternion.Euler(euler);
 
                 yield return null;
             }
+
+            LogDebug("Stopping fishing bonanza");
+            _isBonanzaActive = false;
+            GameObject.Destroy(seagulls);
+
+            EncounterEvents.RaiseEncounterCompleted(enc);
         }
 
         [HarmonyPatch(typeof(FishingRodFish))]

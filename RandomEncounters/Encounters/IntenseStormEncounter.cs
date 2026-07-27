@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using RandomEncounters.API;
 using System.Collections;
 using UnityEngine;
 using static RandomEncounters.RE_Plugin;
@@ -6,16 +7,18 @@ using static RandomEncounters.Configs;
 
 namespace RandomEncounters
 {
-    internal class IntenseStorm
+    internal class IntenseStormEncounter : Encounter
     {
+        public override string Name => "Intense Storm";
+        public override int Weight => 5;
+        public override bool IsAvailable() => enableIntenseStorm.Value && !_isRunning;
+        public override void Trigger(MonoBehaviour host) => host.StartCoroutine(Run(this));
+
         private static OceanUpdaterCrest _oceanUpdaterCrest;
         private static bool _isRunning;
 
-        internal static IEnumerator Run()
+        internal static IEnumerator Run(Encounter enc)
         {
-            if (_isRunning)
-                yield break;
-
             _isRunning = true;
             var weatherStorms = WeatherStorms.instance;
             var storm = weatherStorms.GetCurrentStorm();
@@ -43,7 +46,7 @@ namespace RandomEncounters
                 Wind.currentBaseWind = vector * 50f;
                 var translateSpeed = weatherStorms.InvokePrivateMethod<float>("GetNormalizedDistance") < 0.66 ? 0.005f : 0.25f;
                 storm.transform.Translate(vector * translateSpeed);
-                yield return new WaitForSeconds(0.3f);
+                yield return new WaitForSeconds(0.1f);
                 stormDist = Vector3.Distance(Camera.main.transform.position, storm.transform.position);
             }
 
@@ -64,6 +67,8 @@ namespace RandomEncounters
             _oceanUpdaterCrest.SetPrivateField("windSpeedMult", origWindSpeedMult);
             _oceanUpdaterCrest.SetPrivateField("smallWavesMult", origSmallWavesMult);
             _isRunning = false;
+
+            EncounterEvents.RaiseEncounterCompleted(enc);
         }
 
 

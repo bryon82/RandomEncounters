@@ -1,11 +1,30 @@
-﻿using System.Collections;
+﻿using RandomEncounters.API;
+using System.Collections;
 using UnityEngine;
+using static RandomEncounters.Configs;
 using static RandomEncounters.RE_Plugin;
 
 namespace RandomEncounters
 {
-    internal class Flotsam
+    internal class FlotsamEncounter : Encounter
     {
+        public override string Name => "Flotsam";
+        public override int Weight => 15;
+        public override bool IsAvailable() => enableFlotsam.Value;
+        public override void Trigger(MonoBehaviour host) => Run(this);
+
+        internal static void Run(Encounter enc)
+        {
+            var spawnPoint =
+                GameState.currentBoat.position
+                + GameState.currentBoat.right * 200f
+                + GameState.currentBoat.forward * Random.Range(-30, 30);
+
+            Spawn(spawnPoint);
+
+            EncounterEvents.RaiseEncounterCompleted(enc);
+        }
+
         //cargos
         //1 crate salmon (E)
         //2 crate dates (good)
@@ -79,9 +98,9 @@ namespace RandomEncounters
         //386 coffee barrel
 
 
-        private static readonly int[] _cargos = 
-        { 
-            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 
+        private static readonly int[] _cargos =
+        {
+            1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
             11, 13, 14, 15, 16, 17, 18, 19, 24, 26,
             27, 201, 202, 206, 213, 214, 216, 219, 220, 222,
             223, 224, 227, 228, 229, 230, 231, 232, 233, 234
@@ -105,8 +124,8 @@ namespace RandomEncounters
                 {
                     LogDebug($"Cargo choice: {_cargos[choice]}");
                     var prefabGO = PrefabsDirectory.instance.directory[_cargos[choice]];
-                    var amount = (float)System.Math.Round((decimal)Random.Range(0, prefabGO.GetComponent<ShipItem>().amount));
-                    SpawnItem(spawnPoint, prefabGO, amount);
+                    var amount = Random.Range(1, (int)prefabGO.GetComponent<ShipItem>().amount + 1);
+                    Flotsam.SpawnItem(spawnPoint, prefabGO, amount);
                 }
             }
 
@@ -115,8 +134,8 @@ namespace RandomEncounters
                 var choice = Random.Range(0, _consumables.Length - 1);
                 LogDebug($"Consumable choice: {_consumables[choice]}");
                 var prefabGO = PrefabsDirectory.instance.directory[_consumables[choice]];
-                var amount = (float)System.Math.Round((decimal)Random.Range(0, prefabGO.GetComponent<ShipItem>().amount));
-                SpawnItem(spawnPoint, prefabGO, amount);
+                var amount = Random.Range(1, (int)prefabGO.GetComponent<ShipItem>().amount + 1);
+                Flotsam.SpawnItem(spawnPoint, prefabGO, amount);
             }
 
             for (int i = 0; i < Random.Range(5, 10); i++)
@@ -125,84 +144,22 @@ namespace RandomEncounters
                 LogDebug($"Bottle choice: {_bottles[choice]}");
                 var prefabGO = PrefabsDirectory.instance.directory[_bottles[choice]];
                 var amount = 0f;
-                SpawnItem(spawnPoint, prefabGO, amount);
+                Flotsam.SpawnItem(spawnPoint, prefabGO, amount);
             }
 
             var tobaccoChoice = Random.Range(0, _tobaccoCrates.Length - 1);
             LogDebug($"Tobacco choice: {_tobaccoCrates[tobaccoChoice]}");
             var tobaccoPrefabGO = PrefabsDirectory.instance.directory[_tobaccoCrates[tobaccoChoice]];
-            var tobaccoAmount = (float)System.Math.Round((decimal)Random.Range(0, tobaccoPrefabGO.GetComponent<ShipItem>().amount));
-            SpawnItem(spawnPoint, tobaccoPrefabGO, tobaccoAmount);
+            var tobaccoAmount = Random.Range(1, (int)tobaccoPrefabGO.GetComponent<ShipItem>().amount + 1);
+            Flotsam.SpawnItem(spawnPoint, tobaccoPrefabGO, tobaccoAmount);
 
             var teaCoffeeChoice = Random.Range(0, _teaAndCoffeeBoxes.Length - 1);
             LogDebug($"Tea/Coffee choice: {_teaAndCoffeeBoxes[teaCoffeeChoice]}");
             var teaCoffeePrefabGO = PrefabsDirectory.instance.directory[_teaAndCoffeeBoxes[teaCoffeeChoice]];
-            var teaCoffeeAmount = (float)System.Math.Round((decimal)Random.Range(0, teaCoffeePrefabGO.GetComponent<ShipItem>().amount));
-            SpawnItem(spawnPoint, teaCoffeePrefabGO, teaCoffeeAmount);
+            var teaCoffeeAmount = Random.Range(1, (int)teaCoffeePrefabGO.GetComponent<ShipItem>().amount + 1);
+            Flotsam.SpawnItem(spawnPoint, teaCoffeePrefabGO, teaCoffeeAmount);
 
-            SpawnItem(spawnPoint, AssetLoader.SmallWreck, 1f, true);
-        }
-
-        internal static void SpawnItem(Vector3 spawnPoint, GameObject prefabGO, float amount, bool wreckage = false)
-        {
-            var obj = Object.Instantiate(prefabGO, spawnPoint, Quaternion.Euler(Random.Range(0, 360), Random.Range(0, 360), Random.Range(0, 360)));
-            var shipItem = obj.GetComponent<ShipItem>();
-            shipItem.sold = true;
-            shipItem.amount = amount;
-            shipItem.health = amount;
-            obj.GetComponent<SaveablePrefab>().RegisterToSave();
-            var good = obj.GetComponent<Good>();
-            if (good != null)
-                good.RegisterAsMissionless();
-            if (shipItem is ShipItemCrate crate)
-                EncounterGenerator.Instance.StartCoroutine(UnsealCrate(crate));
-            if (wreckage)
-            {
-                obj.GetComponent<ShipItem>().unclickable = true;
-                obj.transform.parent = Refs.shiftingWorld;
-            }
-            LogDebug($"Prefab {prefabGO.name} spawned");
-        }
-
-        internal static IEnumerator UnsealCrate(ShipItemCrate crate)
-        {
-            yield return new WaitForEndOfFrame();
-            yield return new WaitForEndOfFrame();
-
-            //crate.UnsealCrate();
-            var crateInventory = crate.GetComponent<CrateInventory>();
-            int num = (int)crate.amount;
-            for (int i = 0; i < num; i++)
-            {
-                LogDebug("Inserting item " + crate.amount);
-                var gameObject = Object.Instantiate(crate.GetContainedPrefab(), crate.transform.position + new Vector3(0f, 100.5f, 0f), crate.transform.rotation);
-                crate.amount -= 1f;
-                gameObject.GetComponent<SaveablePrefab>().RegisterToSave();
-                if ((bool)gameObject.GetComponent<CookableFood>())
-                {
-                    if (crate.smokedFood)
-                    {
-                        gameObject.GetComponent<FoodState>().smoked = 1f;
-                        gameObject.GetComponent<ShipItem>().amount = 1.01f;
-                    }
-
-                    gameObject.GetComponent<FoodState>().dried = 1f;
-                    gameObject.GetComponent<CookableFood>().UpdateMaterial();
-                }
-
-                EncounterGenerator.Instance.StartCoroutine(InsertItem(crateInventory, gameObject.GetComponent<ShipItem>()));
-            }
-
-            crate.UpdateLookText();
-            crate.itemRigidbodyC.UpdateMass();
-            LogDebug("Unsealed crate.");
-        }
-
-        private static IEnumerator InsertItem(CrateInventory crateInventory, ShipItem item)
-        {            
-            yield return new WaitForEndOfFrame();
-            item.sold = true;
-            crateInventory.InsertItem(item);
+            Flotsam.SpawnItem(spawnPoint, AssetLoader.SmallWreck, 1f, true);
         }
     }
 }

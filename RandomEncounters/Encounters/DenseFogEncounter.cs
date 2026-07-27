@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using RandomEncounters.API;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,9 +9,19 @@ using static RandomEncounters.Configs;
 
 namespace RandomEncounters
 {
-    internal class DenseFog
+    internal class DenseFogEncounter : Encounter
     {
-        private static bool _isRunning;
+        public override string Name => "Dense Fog";
+        public override int Weight => 5;
+        public override bool IsAvailable() => 
+            enableDenseFog.Value
+            && !isRunning
+            && WeatherStorms.instance.InvokePrivateMethod<float>("GetNormalizedDistance") >= 0.75f;
+
+        public override void Trigger(MonoBehaviour host) => host.StartCoroutine(Run(this));
+
+
+        internal static bool isRunning;
         private static readonly Dictionary<AudioSource, float> _waveAudioSources = new Dictionary<AudioSource, float>();
         private static (AudioSource source, float origVolume) _windAudioSource;
         private static bool _clearFog = true;
@@ -19,11 +30,8 @@ namespace RandomEncounters
 
         private const float MAX_FOG_DENSITY = 0.06f;
 
-        internal static IEnumerator Run()
+        internal static IEnumerator Run(Encounter enc)
         {
-            if (_isRunning || WeatherStorms.instance.InvokePrivateMethod<float>("GetNormalizedDistance") < 0.75f)
-                yield break;
-
             Spawn();
             var waveAudioSources = _waveAudioSources.Keys.ToList();
             var windAudioSource = _windAudioSource.source;
@@ -71,6 +79,8 @@ namespace RandomEncounters
                 }
                 yield return null;
             }
+
+            EncounterEvents.RaiseEncounterCompleted(enc);
         }
 
         private static void Spawn()
@@ -85,7 +95,7 @@ namespace RandomEncounters
                 _windAudioSource = (_windAudioSource.source, _windAudioSource.source.volume);
             }
             _clearFog = false;
-            _isRunning = true;
+            isRunning = true;
         }
 
         private static void ClearFog()
@@ -102,7 +112,7 @@ namespace RandomEncounters
             [HarmonyPatch("ApplyPalette")]
             public static void ApplyFogDensity(ref OceanColorPalette palette)
             {
-                if (!_isRunning) 
+                if (!isRunning) 
                     return;
 
                 _originalFogDensity = _originalFogDensity == 0f ? palette.fogDensity : _originalFogDensity;
@@ -114,7 +124,7 @@ namespace RandomEncounters
 
                 if (_clearFog && _currentFogDensity <= _originalFogDensity)
                 {
-                    _isRunning = false;
+                    isRunning = false;
                     _currentFogDensity = 0f;
                     _originalFogDensity = 0f;
                     GameObject.Find("wind").GetComponent<Wind>().SetPrivateField("timer", 0);
@@ -129,7 +139,7 @@ namespace RandomEncounters
             [HarmonyPatch("SetNewGustTarget")]
             public static bool NoGust(ref Vector3 ___currentGustTarget, Vector3 ___currentWindTarget)
             {
-                if (!_isRunning)
+                if (!isRunning)
                     return true;
 
                 ___currentGustTarget = ___currentWindTarget;
@@ -140,7 +150,7 @@ namespace RandomEncounters
             [HarmonyPatch("SetNewWindTarget")]
             public static bool LightWind(ref Vector3 ___currentWindTarget)
             {
-                if (!_isRunning)
+                if (!isRunning)
                     return true;
 
                 ___currentWindTarget = Wind.currentBaseWind.normalized * 3f;
@@ -155,7 +165,7 @@ namespace RandomEncounters
             [HarmonyPatch("UpdateIntensity")]
             public static bool SetToMinVolume()
             {
-                if (!_isRunning)
+                if (!isRunning)
                     return true;
 
                 return false;
@@ -180,7 +190,7 @@ namespace RandomEncounters
             [HarmonyPatch("Update")]
             public static bool SetToMinVolume()
             {
-                if (!_isRunning)
+                if (!isRunning)
                     return true;
 
                 return false;
@@ -192,6 +202,6 @@ namespace RandomEncounters
             {
                 _windAudioSource = (___audio, ___audio.volume);
             }
-        }        
+        }
     }
 }
