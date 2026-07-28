@@ -13,6 +13,12 @@ namespace RandomEncounters.API
         /// <param name="enc">The encounter to register.</param>
         public static void RegisterEncounter(Encounter enc) => RegisteredEncounters.Add(enc);
 
-        internal static IEnumerable<Encounter> GetAvailable() => RegisteredEncounters.Where(e => e.IsAvailable());        
+        internal static IEnumerable<Encounter> GetAvailable() => RegisteredEncounters.Where(e => e.IsAvailable());
+
+        internal static Encounter GetEncounterByName(string name) =>
+            RegisteredEncounters.FirstOrDefault(e => e.Name == name);
+
+        internal static Encounter GetActiveEncounter() =>
+            RegisteredEncounters.FirstOrDefault(e => e.TimeRemaining > 0f);
     }
 }

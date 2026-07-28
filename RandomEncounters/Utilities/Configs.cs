@@ -45,7 +45,7 @@ namespace RandomEncounters
                 "Encounter Types",
                 "Control SeaLifeMod spawns",
                 true,
-                "Use this mod to control SeaLifeMod spawns.");
+                "Use this mod to control SeaLifeMod spawns. <b>Requires restart to take effect.</b>");
             enableDenseFog = config.Bind(
                 "Encounter Types",
                 "Enable dense fog encounters",

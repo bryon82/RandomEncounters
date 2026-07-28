@@ -12,12 +12,12 @@ namespace RandomEncounters
         public override bool IsAvailable() =>
             controlSeaLifeMod.Value && SeaLifeModPluginInstance != null && enableFlotsam.Value;
 
-        public override void Trigger(MonoBehaviour host)
+        public override void Trigger()
         {
-            var flotsamEncounter = new FlotsamEncounter();
-            flotsamEncounter.Trigger(host);
-            var whalesEncounter = new WhalesEncounter();
-            whalesEncounter.Trigger(host);
+            var flotsamEncounter = EncounterRegistry.GetEncounterByName("Flotsam");
+            flotsamEncounter?.Trigger();
+            var whalesEncounter = EncounterRegistry.GetEncounterByName("Whales");
+            whalesEncounter?.Trigger();
         }
     }
 }

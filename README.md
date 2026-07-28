@@ -1,6 +1,6 @@
 # RandomEncounters
 
-Generates encounters while you are out at sea. You must be roughly 10 miles away from land to get a chance at an encounter.
+Generates encounters while you are out at sea. You must be roughly 10 nautical miles away from land to get a chance at an encounter.
 
 ## Features
 
@@ -21,12 +21,15 @@ These are the encounters that currently are a part of this mod. There is a confi
 
 ### Other Mod Authors
 
-This mod includes an API if you want to use RandomEncounters to spawn your custom encounter. Here are the steps to use the API to add your encounter:
+This mod includes an API if you want to use RandomEncounters to spawn your custom encounter.  
+Here are the steps to use the API to add your encounter:
 1. Add RandomEncounters as a BepInDependency 
 ```
-[BepInDependency("com.raddude.randomencounters", "1.5.0")]
+[BepInDependency("com.raddude.randomencounters", "2.0.0")]
 ```
+
 2. Add the RandomEncounters.dll as a reference in your project.
+
 3. Make a class for your encounter which extends the abstract Encouter class:
 ```
 public class KrakenEncounter : Encounter
@@ -37,16 +40,16 @@ public class KrakenEncounter : Encounter
 
     public override bool IsAvailable() => GameState.weather == Weather.Storm;
 
-    public override void Trigger(MonoBehaviour host) => host.StartCoroutine(SpawnKraken(this));
+    public override void Trigger() => Runner(SpawnKraken());
 }
 ```
-`this` is passed so that at the end of the encounter it can be passed in to the event `EncounterEvents.RaiseEncounterCompleted(enc)`.  
 
 4. In your mod's Awake, add your encounter to the registry
 ```
 EncounterRegistry.Register(new KrakenEncounter());
 ```
-5. The trigger of the ecounter will be raise an event, and if you added RaiseEncounterCompleted the end of the encounter will as well. Both of those as well as a encounters skipped event can be subscribed to with: `EncounterTriggered`, `EncounterCompleted`, and `EncounterSkipped` from the `EncounterEvents` class.
+
+5. The trigger of the ecounter will be raise an event and, if you add `RaiseEncounterCompleted` at the end of you encounter code, the completion of the encounter will as well. Both of those events as well as an encounters skipped event can be subscribed to with: `EncounterTriggered`, `EncounterCompleted`, and `EncounterSkipped` from the `EncounterEvents` class.
 
 ### Requires
 

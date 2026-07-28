@@ -1,5 +1,4 @@
 ﻿using RandomEncounters.API;
-using System.Collections;
 using UnityEngine;
 using static RandomEncounters.Configs;
 using static RandomEncounters.RE_Plugin;
@@ -11,9 +10,9 @@ namespace RandomEncounters
         public override string Name => "Flotsam";
         public override int Weight => 15;
         public override bool IsAvailable() => enableFlotsam.Value;
-        public override void Trigger(MonoBehaviour host) => Run(this);
+        public override void Trigger() => Run();
 
-        internal static void Run(Encounter enc)
+        private void Run()
         {
             var spawnPoint =
                 GameState.currentBoat.position
@@ -22,7 +21,7 @@ namespace RandomEncounters
 
             Spawn(spawnPoint);
 
-            EncounterEvents.RaiseEncounterCompleted(enc);
+            EncounterEvents.RaiseEncounterCompleted(this);
         }
 
         //cargos

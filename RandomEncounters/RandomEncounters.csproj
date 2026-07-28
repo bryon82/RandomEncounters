@@ -97,6 +97,7 @@
     <Compile Include="Utilities\AssetLoader.cs" />
     <Compile Include="Utilities\Configs.cs" />
     <Compile Include="Utilities\Extensions.cs" />
+    <Compile Include="Utilities\ModData.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)$(AssemblyName).VS.props" />

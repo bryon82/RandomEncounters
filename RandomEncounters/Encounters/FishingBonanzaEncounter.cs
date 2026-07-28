@@ -10,7 +10,6 @@ namespace RandomEncounters
 {
     internal class FishingBonanzaEncounter : Encounter
     {
-        private static bool _isBonanzaActive;
         private static Seagulls _seagulls;
 
         public override string Name => "Fishing Bonanza";
@@ -19,15 +18,16 @@ namespace RandomEncounters
             enableFishingBonanza.Value
             && GameState.playing
             && GameState.currentBoat
-            && !_isBonanzaActive
+            && !IsActive
             && WeatherStorms.instance.InvokePrivateMethod<float>("GetNormalizedDistance") >= 0.75f;
 
-        public override void Trigger(MonoBehaviour host) => host.StartCoroutine(Run(this));
+        public override void Trigger() => Runner(Run());
 
 
-
-        internal static IEnumerator Run(Encounter enc)
+        private IEnumerator Run()
         {
+            TimeRemaining = TimeRemaining > 0f ? TimeRemaining : fishingBonanzaDuration.Value;
+
             if (_seagulls == null)
                 _seagulls = Refs.shiftingWorld.GetComponentInChildren<Seagulls>(true);
 
@@ -45,7 +45,7 @@ namespace RandomEncounters
 
             var main = seagullsPS.main;
             main.maxParticles = 25;
-            main.startLifetime = fishingBonanzaDuration.Value;
+            main.startLifetime = TimeRemaining;
             main.startRotation = 0f;
             main.startRotation3D = false;
 
@@ -79,12 +79,16 @@ namespace RandomEncounters
                 emission.enabled = true;
 
             LogDebug("Starting fishing bonanza");
-            _isBonanzaActive = true;
+            IsActive = true;
 
-            float endTime = Time.time + fishingBonanzaDuration.Value;
+            var duration = TimeRemaining;
+            var elapsed = 0f;
 
-            while (Time.time < endTime)
+            while (elapsed < duration)
             {
+                elapsed += Time.deltaTime;
+                TimeRemaining -= duration;
+
                 var targetPosition = GameState.currentBoat.position + GameState.currentBoat.up * 40f;
                 seagulls.transform.position = Vector3.Lerp(
                     seagulls.transform.position,
@@ -96,16 +100,17 @@ namespace RandomEncounters
                     euler.y,
                     GameState.currentBoat.eulerAngles.y - 90f,
                     0.2f * Time.deltaTime);
-                seagulls.transform.rotation = Quaternion.Euler(euler);
+                seagulls.transform.rotation = Quaternion.Euler(euler);                
 
                 yield return null;
             }
 
             LogDebug("Stopping fishing bonanza");
-            _isBonanzaActive = false;
+            IsActive = false;
             GameObject.Destroy(seagulls);
 
-            EncounterEvents.RaiseEncounterCompleted(enc);
+            TimeRemaining = 0f;
+            EncounterEvents.RaiseEncounterCompleted(this);
         }
 
         [HarmonyPatch(typeof(FishingRodFish))]
@@ -121,11 +126,11 @@ namespace RandomEncounters
                 ref float ___fishTimer)
             {
                 var notValid =
-                    !_isBonanzaActive
+                    !___floater.InWater
+                    || !EncounterRegistry.GetEncounterByName("FishingBonanza").IsActive
                     || __instance.currentFish != null
                     || ___rod.health <= 0f
-                    || (!(bool)___rod.held && !IdleFishingPluginDetected && !HooksHangMorePluginDetected)
-                    || !___floater.InWater
+                    || (!(bool)___rod.held && !IdleFishingPluginDetected && !HooksHangMorePluginDetected)                    
                     || ___bobberJoint.linearLimit.limit <= 1f
                     || __instance.gameObject.layer == 16;
 

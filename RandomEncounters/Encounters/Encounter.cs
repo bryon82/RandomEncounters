@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System;
+using System.Collections;
+using UnityEngine;
 
 namespace RandomEncounters
 {
@@ -6,9 +8,12 @@ namespace RandomEncounters
     {
         public abstract string Name { get; }
         public abstract int Weight { get; }
+        public float TimeRemaining { get; set; }
+        public bool IsActive { get; internal set; }
+        public Coroutine Runner(IEnumerator enumerator) => EncounterGenerator.Instance.StartCoroutine(enumerator);
 
         public virtual bool IsAvailable() => true;
                 
-        public abstract void Trigger(MonoBehaviour host);
+        public abstract void Trigger();
     }
 }

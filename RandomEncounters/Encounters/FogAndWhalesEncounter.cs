@@ -13,15 +13,16 @@ namespace RandomEncounters
             controlSeaLifeMod.Value
             && SeaLifeModPluginInstance != null
             && enableDenseFog.Value
-            && !DenseFogEncounter.isRunning
+            && !denseFogEncounter.IsActive
             && WeatherStorms.instance.InvokePrivateMethod<float>("GetNormalizedDistance") >= 0.75f;
 
-        public override void Trigger(MonoBehaviour host)
+        private readonly Encounter denseFogEncounter = EncounterRegistry.GetEncounterByName("Dense Fog");
+
+        public override void Trigger()
         {
-            var denseFogEncounter = new DenseFogEncounter();
-            denseFogEncounter.Trigger(host);
-            var whalesEncounter = new WhalesEncounter();
-            whalesEncounter.Trigger(host);
+            denseFogEncounter.Trigger();
+            var whalesEncounter = EncounterRegistry.GetEncounterByName("Whales");
+            whalesEncounter.Trigger();
         }
     }
 }

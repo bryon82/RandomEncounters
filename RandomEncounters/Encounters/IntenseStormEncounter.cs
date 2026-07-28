@@ -11,15 +11,16 @@ namespace RandomEncounters
     {
         public override string Name => "Intense Storm";
         public override int Weight => 5;
-        public override bool IsAvailable() => enableIntenseStorm.Value && !_isRunning;
-        public override void Trigger(MonoBehaviour host) => host.StartCoroutine(Run(this));
+        public override bool IsAvailable() => enableIntenseStorm.Value && !IsActive;
+        public override void Trigger() => Runner(Run());
 
         private static OceanUpdaterCrest _oceanUpdaterCrest;
-        private static bool _isRunning;
 
-        internal static IEnumerator Run(Encounter enc)
+        private IEnumerator Run()
         {
-            _isRunning = true;
+            TimeRemaining = TimeRemaining > 0f ? TimeRemaining : intenseStormDuration.Value;
+
+            IsActive = true;
             var weatherStorms = WeatherStorms.instance;
             var storm = weatherStorms.GetCurrentStorm();
             var lightning = storm.transform.GetChild(3).GetComponent<WanderingStormLightning>();
@@ -46,7 +47,7 @@ namespace RandomEncounters
                 Wind.currentBaseWind = vector * 50f;
                 var translateSpeed = weatherStorms.InvokePrivateMethod<float>("GetNormalizedDistance") < 0.66 ? 0.005f : 0.25f;
                 storm.transform.Translate(vector * translateSpeed);
-                yield return new WaitForSeconds(0.1f);
+                yield return new WaitForSeconds(0.05f);
                 stormDist = Vector3.Distance(Camera.main.transform.position, storm.transform.position);
             }
 
@@ -54,9 +55,12 @@ namespace RandomEncounters
             _oceanUpdaterCrest.inertiaWindScale = 0.22f;
             _oceanUpdaterCrest.SetPrivateField("windSpeedMult", 5f);
             _oceanUpdaterCrest.SetPrivateField("smallWavesMult", 0.4f);
-            for (int i = 0; i < intenseStormDuration.Value; i++)
+
+            var stormDuration = TimeRemaining;
+            for (int i = 0; i < stormDuration; i++)
             {
                 Wind.currentBaseWind = vector * 50f;
+                TimeRemaining -= 1f;
                 yield return new WaitForSeconds(1f);
             }
 
@@ -66,11 +70,11 @@ namespace RandomEncounters
             _oceanUpdaterCrest.inertiaWindScale = origInertiaWindScale;
             _oceanUpdaterCrest.SetPrivateField("windSpeedMult", origWindSpeedMult);
             _oceanUpdaterCrest.SetPrivateField("smallWavesMult", origSmallWavesMult);
-            _isRunning = false;
-
-            EncounterEvents.RaiseEncounterCompleted(enc);
+            
+            IsActive = false;
+            TimeRemaining = 0f;
+            EncounterEvents.RaiseEncounterCompleted(this);
         }
-
 
         [HarmonyPatch(typeof(OceanUpdaterCrest))]
         static class OceanUpdaterCrestPatches

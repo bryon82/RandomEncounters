@@ -15,23 +15,25 @@ namespace RandomEncounters
         public override int Weight => 5;
         public override bool IsAvailable() => 
             enableDenseFog.Value
-            && !isRunning
+            && !IsActive
             && WeatherStorms.instance.InvokePrivateMethod<float>("GetNormalizedDistance") >= 0.75f;
 
-        public override void Trigger(MonoBehaviour host) => host.StartCoroutine(Run(this));
+        public override void Trigger() => Runner(Run());
 
-
-        internal static bool isRunning;
         private static readonly Dictionary<AudioSource, float> _waveAudioSources = new Dictionary<AudioSource, float>();
         private static (AudioSource source, float origVolume) _windAudioSource;
         private static bool _clearFog = true;
+        private static bool _fogCleared = true;
         private static float _currentFogDensity = 0f;
         private static float _originalFogDensity = 0f;
 
         private const float MAX_FOG_DENSITY = 0.06f;
 
-        internal static IEnumerator Run(Encounter enc)
+        private IEnumerator Run()
         {
+            TimeRemaining = TimeRemaining > 0f ? TimeRemaining : fogDuration.Value;
+
+            IsActive = true;
             Spawn();
             var waveAudioSources = _waveAudioSources.Keys.ToList();
             var windAudioSource = _windAudioSource.source;
@@ -62,7 +64,16 @@ namespace RandomEncounters
                 yield return new WaitForSeconds(1f);
             }
 
-            yield return new WaitForSeconds(fogDuration.Value);
+            var duration = TimeRemaining;
+            var elapsed = 0f;
+
+            while (elapsed < duration)
+            {                
+                elapsed += Time.deltaTime;
+                TimeRemaining -= elapsed;
+
+                yield return null;
+            }
 
             ClearFog();
             const float fadeInDuration = 4f;
@@ -79,11 +90,12 @@ namespace RandomEncounters
                 }
                 yield return null;
             }
-
-            EncounterEvents.RaiseEncounterCompleted(enc);
+            
+            IsActive = false;
+            EncounterEvents.RaiseEncounterCompleted(this);
         }
 
-        private static void Spawn()
+        private void Spawn()
         {
             LogDebug($"Spawning fog");
             foreach (var source in _waveAudioSources.Keys.ToList())
@@ -95,15 +107,14 @@ namespace RandomEncounters
                 _windAudioSource = (_windAudioSource.source, _windAudioSource.source.volume);
             }
             _clearFog = false;
-            isRunning = true;
+            _fogCleared = false;
         }
 
-        private static void ClearFog()
+        private void ClearFog()
         {
             LogDebug($"Clearing fog");
-            _clearFog = true;
+            _clearFog = true;            
         }
-
 
         [HarmonyPatch(typeof(OceanColorBlender))]
         private class OceanColorBlenderPatches
@@ -112,7 +123,7 @@ namespace RandomEncounters
             [HarmonyPatch("ApplyPalette")]
             public static void ApplyFogDensity(ref OceanColorPalette palette)
             {
-                if (!isRunning) 
+                if (_fogCleared) 
                     return;
 
                 _originalFogDensity = _originalFogDensity == 0f ? palette.fogDensity : _originalFogDensity;
@@ -124,7 +135,7 @@ namespace RandomEncounters
 
                 if (_clearFog && _currentFogDensity <= _originalFogDensity)
                 {
-                    isRunning = false;
+                    _fogCleared = true;
                     _currentFogDensity = 0f;
                     _originalFogDensity = 0f;
                     GameObject.Find("wind").GetComponent<Wind>().SetPrivateField("timer", 0);
@@ -139,7 +150,7 @@ namespace RandomEncounters
             [HarmonyPatch("SetNewGustTarget")]
             public static bool NoGust(ref Vector3 ___currentGustTarget, Vector3 ___currentWindTarget)
             {
-                if (!isRunning)
+                if (_fogCleared)
                     return true;
 
                 ___currentGustTarget = ___currentWindTarget;
@@ -150,7 +161,7 @@ namespace RandomEncounters
             [HarmonyPatch("SetNewWindTarget")]
             public static bool LightWind(ref Vector3 ___currentWindTarget)
             {
-                if (!isRunning)
+                if (_fogCleared)
                     return true;
 
                 ___currentWindTarget = Wind.currentBaseWind.normalized * 3f;
@@ -165,7 +176,7 @@ namespace RandomEncounters
             [HarmonyPatch("UpdateIntensity")]
             public static bool SetToMinVolume()
             {
-                if (!isRunning)
+                if (_fogCleared)
                     return true;
 
                 return false;
@@ -175,13 +186,10 @@ namespace RandomEncounters
             [HarmonyPatch("Start")]
             public static void GetAudioSource(AudioSource ___audio)
             {
-                if (!_waveAudioSources.ContainsKey(___audio))
-                {
+                if (!_waveAudioSources.ContainsKey(___audio))                
                     _waveAudioSources.Add(___audio, ___audio.volume);
-                }
             }
         }
-
 
         [HarmonyPatch(typeof(WindSound))]
         private class WindSoundPatches
@@ -190,7 +198,7 @@ namespace RandomEncounters
             [HarmonyPatch("Update")]
             public static bool SetToMinVolume()
             {
-                if (!isRunning)
+                if (_fogCleared)
                     return true;
 
                 return false;

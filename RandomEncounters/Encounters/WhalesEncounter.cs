@@ -11,12 +11,17 @@ namespace RandomEncounters
         public override string Name => "Whales";
         public override int Weight => 25;
         public override bool IsAvailable() => controlSeaLifeMod.Value && SeaLifeModPluginInstance != null;
-        public override void Trigger(MonoBehaviour host) => host.StartCoroutine(Run(this));
+        public override void Trigger() => Runner(Run());
+        internal void TriggerWasActive(int whaleCount) => Runner(Run(whaleCount));
 
-        internal static IEnumerator Run(Encounter enc)
+        private IEnumerator Run(int whaleCount = -1)
         {
             var boatPosition = GameState.currentBoat.position;
             var spawnCount = Random.Range(2, 5);
+            if (whaleCount > 0)
+            {
+                spawnCount = whaleCount;
+            }
             var spawnDelay = new WaitForSeconds(2f);
 
             for (int i = 0; i < spawnCount; i++)
@@ -28,7 +33,7 @@ namespace RandomEncounters
             yield return spawnDelay;
             SeaLifeMod.TriggerEntranceAnimation();
 
-            EncounterEvents.RaiseEncounterCompleted(enc);
+            EncounterEvents.RaiseEncounterCompleted(this);
         }
     }
 }

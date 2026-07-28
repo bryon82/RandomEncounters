@@ -103,10 +103,59 @@ namespace RandomEncounters
                 {
                     LogInfo($"Encounter: {entry.Name}");
                     EncounterEvents.RaiseEncounterTriggered(entry);
-                    entry.Trigger(this);
+                    entry.Trigger();
                     return;
                 }
             }
+        }
+
+        internal void LoadEncounter()
+        {
+            StartCoroutine(EncounterLoader());
+        }
+
+        IEnumerator EncounterLoader()
+        {            
+            var encounterName = ModData.GetEntry<string>($"{PLUGIN_NAME}.EncounterName");
+            var timeRemaining = ModData.GetEntry<float>($"{PLUGIN_NAME}.EncounterTimeRemaining");
+            var whaleCount = ModData.GetEntry<int>($"{PLUGIN_NAME}.WhaleCount");
+
+            yield return new WaitUntil(() => GameState.playing && !GameState.currentlyLoading);
+
+            if (!string.IsNullOrEmpty(encounterName) && timeRemaining > 0f)
+            {
+                var enc = EncounterRegistry.GetEncounterByName(encounterName);
+                if (enc != null && enc.IsAvailable())
+                {
+                    enc.TimeRemaining = timeRemaining;
+                    enc.Trigger();
+                }
+            }
+
+            if (whaleCount > 0)
+            {
+                var whalesEncounter = (WhalesEncounter)EncounterRegistry.GetEncounterByName("Whales");
+
+                if (whalesEncounter != null && whalesEncounter.IsAvailable())
+                    whalesEncounter.TriggerWasActive(whaleCount);
+            }
+        }
+
+        internal void SaveEncounter()
+        {
+            var enc = EncounterRegistry.GetActiveEncounter();
+            if (enc != null)
+            {
+                ModData.AddEntry($"{PLUGIN_NAME}.EncounterName", enc.Name);
+                ModData.AddEntry($"{PLUGIN_NAME}.EncounterTimeRemaining", enc.TimeRemaining);
+            }
+            else
+            {
+                ModData.AddEntry($"{PLUGIN_NAME}.EncounterName", string.Empty);
+                ModData.AddEntry($"{PLUGIN_NAME}.EncounterTimeRemaining", 0f);
+            }
+
+            ModData.AddEntry($"{PLUGIN_NAME}.WhaleCount", SeaLifeMod.ActiveWhales);
         }
     }
 }

@@ -13,7 +13,6 @@ namespace RandomEncounters
         private static Type _finWhaleAIType;
         private static Type _effectControllerType;
         private static FastInvokeHandler _triggerRandomAnimation;
-        private static int _activeWhales = 0;
         private static Component _whale0Ai;
         private static AssetBundle _assetBundle;
         private static AudioClip[] _blowholeSounds;
@@ -21,6 +20,9 @@ namespace RandomEncounters
         private static AudioClip[] _breachEmergeSounds;
         private static AudioClip[] _tailSplashSounds;
         private static bool _allSoundsLoaded = false;
+
+        internal static int ActiveWhales { get; set; } = 0;
+        internal static bool WhalesReady {  get; set; }
 
         private static int _groupsCompleted = 0;
         private const int TOTAL_GROUPS = 4;
@@ -81,6 +83,8 @@ namespace RandomEncounters
                 whale.gameObject.SetActive(false);
                 _whaleSpawns.Add(whale);
             }
+
+            WhalesReady = true;
         }
 
         internal static void SpawnWhale(int i, Vector3 spawnPosition)
@@ -94,7 +98,7 @@ namespace RandomEncounters
             whaleTransform.rotation = Quaternion.Euler(0f, rotationY, 0f);
             whaleTransform.localScale = new Vector3(scale, scale, scale);
             whale.SetActive(true);
-            _activeWhales++;
+            ActiveWhales++;
         }
 
         internal static void TriggerEntranceAnimation()
@@ -104,7 +108,7 @@ namespace RandomEncounters
 
         internal static void CheckWhaleDistance()
         {
-            if (_activeWhales == 0)
+            if (ActiveWhales == 0)
                 return;
 
             foreach (var whale in _whaleSpawns)
@@ -114,7 +118,7 @@ namespace RandomEncounters
                 {
                     LogDebug("Removing FinWhale");
                     whale.SetActive(false);
-                    _activeWhales--;
+                    ActiveWhales--;
                 }
             }
         }

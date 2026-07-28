@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 - API system so other mod authors can easily add encounters to the RandomEncounters pool of encounters. This includes a registry system and events.
+- Persistance to the enounters. Now when you load a save where you were in the middle of an encounter, the encounter will continue.
 
 ### Updated
 - Encounters to use the API system.
