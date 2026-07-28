@@ -19,6 +19,35 @@ These are the encounters that currently are a part of this mod. There is a confi
 * The percent chance an encounter will occur.
 * The amount of time the dense fog, intense storm, and fishing bonanza encounters lasts
 
+### Other Mod Authors
+
+This mod includes an API if you want to use RandomEncounters to spawn your custom encounter. Here are the steps to use the API to add your encounter:
+1. Add RandomEncounters as a BepInDependency 
+```
+[BepInDependency("com.raddude.randomencounters", "1.5.0")]
+```
+2. Add the RandomEncounters.dll as a reference in your project.
+3. Make a class for your encounter which extends the abstract Encouter class:
+```
+public class KrakenEncounter : Encounter
+{
+    public override string Name => "Kraken";
+
+    public override int Weight => 2;
+
+    public override bool IsAvailable() => GameState.weather == Weather.Storm;
+
+    public override void Trigger(MonoBehaviour host) => host.StartCoroutine(SpawnKraken(this));
+}
+```
+`this` is passed so that at the end of the encounter it can be passed in to the event `EncounterEvents.RaiseEncounterCompleted(enc)`.  
+
+4. In your mod's Awake, add your encounter to the registry
+```
+EncounterRegistry.Register(new KrakenEncounter());
+```
+5. The trigger of the ecounter will be raise an event, and if you added RaiseEncounterCompleted the end of the encounter will as well. Both of those as well as a encounters skipped event can be subscribed to with: `EncounterTriggered`, `EncounterCompleted`, and `EncounterSkipped` from the `EncounterEvents` class.
+
 ### Requires
 
 * [BepInEx 5.4.23](https://github.com/BepInEx/BepInEx/releases)
