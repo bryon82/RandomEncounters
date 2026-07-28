@@ -14,7 +14,7 @@ namespace RandomEncounters
 
         public override string Name => "Fishing Bonanza";
         public override int Weight => 15;
-        public override bool IsAvailable() =>
+        public override bool IsAvailable =>
             enableFishingBonanza.Value
             && GameState.playing
             && GameState.currentBoat
@@ -26,8 +26,6 @@ namespace RandomEncounters
 
         private IEnumerator Run()
         {
-            TimeRemaining = TimeRemaining > 0f ? TimeRemaining : fishingBonanzaDuration.Value;
-
             if (_seagulls == null)
                 _seagulls = Refs.shiftingWorld.GetComponentInChildren<Seagulls>(true);
 
@@ -81,13 +79,13 @@ namespace RandomEncounters
             LogDebug("Starting fishing bonanza");
             IsActive = true;
 
-            var duration = TimeRemaining;
+            var duration = TimeRemaining > 0f ? TimeRemaining : fishingBonanzaDuration.Value;
             var elapsed = 0f;
 
             while (elapsed < duration)
             {
                 elapsed += Time.deltaTime;
-                TimeRemaining -= duration;
+                TimeRemaining = duration - elapsed;
 
                 var targetPosition = GameState.currentBoat.position + GameState.currentBoat.up * 40f;
                 seagulls.transform.position = Vector3.Lerp(
@@ -126,11 +124,11 @@ namespace RandomEncounters
                 ref float ___fishTimer)
             {
                 var notValid =
-                    !___floater.InWater
-                    || !EncounterRegistry.GetEncounterByName("FishingBonanza").IsActive
+                    !EncounterRegistry.GetByName("Fishing Bonanza").IsActive
                     || __instance.currentFish != null
                     || ___rod.health <= 0f
-                    || (!(bool)___rod.held && !IdleFishingPluginDetected && !HooksHangMorePluginDetected)                    
+                    || (!(bool)___rod.held && !IdleFishingPluginDetected && !HooksHangMorePluginDetected)
+                    || !___floater.InWater
                     || ___bobberJoint.linearLimit.limit <= 1f
                     || __instance.gameObject.layer == 16;
 

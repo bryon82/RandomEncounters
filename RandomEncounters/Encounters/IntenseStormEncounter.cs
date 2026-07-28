@@ -11,15 +11,13 @@ namespace RandomEncounters
     {
         public override string Name => "Intense Storm";
         public override int Weight => 5;
-        public override bool IsAvailable() => enableIntenseStorm.Value && !IsActive;
+        public override bool IsAvailable => enableIntenseStorm.Value && !IsActive;
         public override void Trigger() => Runner(Run());
 
         private static OceanUpdaterCrest _oceanUpdaterCrest;
 
         private IEnumerator Run()
         {
-            TimeRemaining = TimeRemaining > 0f ? TimeRemaining : intenseStormDuration.Value;
-
             IsActive = true;
             var weatherStorms = WeatherStorms.instance;
             var storm = weatherStorms.GetCurrentStorm();
@@ -45,7 +43,7 @@ namespace RandomEncounters
                 vector = Camera.main.transform.position - storm.transform.position;
                 vector.y = 0f;
                 Wind.currentBaseWind = vector * 50f;
-                var translateSpeed = weatherStorms.InvokePrivateMethod<float>("GetNormalizedDistance") < 0.66 ? 0.005f : 0.25f;
+                var translateSpeed = weatherStorms.InvokePrivateMethod<float>("GetNormalizedDistance") < 0.66 ? 0.0025f : 0.125f;
                 storm.transform.Translate(vector * translateSpeed);
                 yield return new WaitForSeconds(0.05f);
                 stormDist = Vector3.Distance(Camera.main.transform.position, storm.transform.position);
@@ -56,12 +54,17 @@ namespace RandomEncounters
             _oceanUpdaterCrest.SetPrivateField("windSpeedMult", 5f);
             _oceanUpdaterCrest.SetPrivateField("smallWavesMult", 0.4f);
 
-            var stormDuration = TimeRemaining;
-            for (int i = 0; i < stormDuration; i++)
+            var duration = TimeRemaining > 0f ? TimeRemaining : intenseStormDuration.Value;
+            var elapsed = 0f;
+
+            while (elapsed < duration)
             {
+                elapsed += Time.deltaTime;
+                TimeRemaining = duration - elapsed;
+
                 Wind.currentBaseWind = vector * 50f;
-                TimeRemaining -= 1f;
-                yield return new WaitForSeconds(1f);
+
+                yield return null;
             }
 
             LogDebug($"{storm.name} dying down");

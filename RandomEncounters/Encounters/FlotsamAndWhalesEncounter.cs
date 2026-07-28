@@ -9,14 +9,14 @@ namespace RandomEncounters
     {
         public override string Name => "Flotsam and Whales";
         public override int Weight => 10;
-        public override bool IsAvailable() =>
+        public override bool IsAvailable =>
             controlSeaLifeMod.Value && SeaLifeModPluginInstance != null && enableFlotsam.Value;
 
         public override void Trigger()
         {
-            var flotsamEncounter = EncounterRegistry.GetEncounterByName("Flotsam");
+            var flotsamEncounter = EncounterRegistry.GetByName("Flotsam");
             flotsamEncounter?.Trigger();
-            var whalesEncounter = EncounterRegistry.GetEncounterByName("Whales");
+            var whalesEncounter = EncounterRegistry.GetByName("Whales");
             whalesEncounter?.Trigger();
         }
     }

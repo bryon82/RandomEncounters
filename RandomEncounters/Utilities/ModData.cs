@@ -6,16 +6,16 @@ using static RandomEncounters.RE_Plugin;
 namespace RandomEncounters
 {
     internal class ModData
-    {        
+    {
         public static void AddEntry<T>(string dataName, T data)
         {
             string dataString;
-           
-            if (typeof(T) == typeof(float))            
-                dataString = ((float)(object)data).ToString(CultureInfo.InvariantCulture);            
-            else            
+
+            if (typeof(T) == typeof(float))
+                dataString = ((float)(object)data).ToString(CultureInfo.InvariantCulture);
+            else
                 dataString = data.ToString();
-            
+
             if (GameState.modData.ContainsKey(dataName))
                 GameState.modData[dataName] = dataString;
             else

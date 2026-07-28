@@ -10,7 +10,7 @@ namespace RandomEncounters
     {
         public override string Name => "Whales";
         public override int Weight => 25;
-        public override bool IsAvailable() => controlSeaLifeMod.Value && SeaLifeModPluginInstance != null;
+        public override bool IsAvailable => controlSeaLifeMod.Value && SeaLifeModPluginInstance != null;
         public override void Trigger() => Runner(Run());
         internal void TriggerWasActive(int whaleCount) => Runner(Run(whaleCount));
 
@@ -33,7 +33,8 @@ namespace RandomEncounters
             yield return spawnDelay;
             SeaLifeMod.TriggerEntranceAnimation();
 
-            EncounterEvents.RaiseEncounterCompleted(this);
+            if (whaleCount == -1)
+                EncounterEvents.RaiseEncounterCompleted(this);
         }
     }
 }

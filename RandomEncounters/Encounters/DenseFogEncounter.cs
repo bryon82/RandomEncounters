@@ -13,7 +13,7 @@ namespace RandomEncounters
     {
         public override string Name => "Dense Fog";
         public override int Weight => 5;
-        public override bool IsAvailable() => 
+        public override bool IsAvailable => 
             enableDenseFog.Value
             && !IsActive
             && WeatherStorms.instance.InvokePrivateMethod<float>("GetNormalizedDistance") >= 0.75f;
@@ -22,7 +22,7 @@ namespace RandomEncounters
 
         private static readonly Dictionary<AudioSource, float> _waveAudioSources = new Dictionary<AudioSource, float>();
         private static (AudioSource source, float origVolume) _windAudioSource;
-        private static bool _clearFog = true;
+        private static bool _clearFog = false;
         private static bool _fogCleared = true;
         private static float _currentFogDensity = 0f;
         private static float _originalFogDensity = 0f;
@@ -31,8 +31,6 @@ namespace RandomEncounters
 
         private IEnumerator Run()
         {
-            TimeRemaining = TimeRemaining > 0f ? TimeRemaining : fogDuration.Value;
-
             IsActive = true;
             Spawn();
             var waveAudioSources = _waveAudioSources.Keys.ToList();
@@ -64,13 +62,13 @@ namespace RandomEncounters
                 yield return new WaitForSeconds(1f);
             }
 
-            var duration = TimeRemaining;
+            var duration = TimeRemaining > 0f ? TimeRemaining : fogDuration.Value;
             var elapsed = 0f;
 
             while (elapsed < duration)
-            {                
+            {
                 elapsed += Time.deltaTime;
-                TimeRemaining -= elapsed;
+                TimeRemaining = duration - elapsed;
 
                 yield return null;
             }
@@ -90,12 +88,12 @@ namespace RandomEncounters
                 }
                 yield return null;
             }
-            
+
             IsActive = false;
             EncounterEvents.RaiseEncounterCompleted(this);
         }
 
-        private void Spawn()
+        private static void Spawn()
         {
             LogDebug($"Spawning fog");
             foreach (var source in _waveAudioSources.Keys.ToList())
@@ -110,10 +108,10 @@ namespace RandomEncounters
             _fogCleared = false;
         }
 
-        private void ClearFog()
+        private static void ClearFog()
         {
             LogDebug($"Clearing fog");
-            _clearFog = true;            
+            _clearFog = true;
         }
 
         [HarmonyPatch(typeof(OceanColorBlender))]
@@ -139,6 +137,7 @@ namespace RandomEncounters
                     _currentFogDensity = 0f;
                     _originalFogDensity = 0f;
                     GameObject.Find("wind").GetComponent<Wind>().SetPrivateField("timer", 0);
+                    LogDebug("Fog cleared");
                 }
             }
         }
@@ -150,7 +149,7 @@ namespace RandomEncounters
             [HarmonyPatch("SetNewGustTarget")]
             public static bool NoGust(ref Vector3 ___currentGustTarget, Vector3 ___currentWindTarget)
             {
-                if (_fogCleared)
+                if (_fogCleared || _clearFog)
                     return true;
 
                 ___currentGustTarget = ___currentWindTarget;
@@ -161,7 +160,7 @@ namespace RandomEncounters
             [HarmonyPatch("SetNewWindTarget")]
             public static bool LightWind(ref Vector3 ___currentWindTarget)
             {
-                if (_fogCleared)
+                if (_fogCleared || _clearFog)
                     return true;
 
                 ___currentWindTarget = Wind.currentBaseWind.normalized * 3f;
@@ -176,7 +175,7 @@ namespace RandomEncounters
             [HarmonyPatch("UpdateIntensity")]
             public static bool SetToMinVolume()
             {
-                if (_fogCleared)
+                if (_fogCleared || _clearFog)
                     return true;
 
                 return false;
@@ -186,7 +185,7 @@ namespace RandomEncounters
             [HarmonyPatch("Start")]
             public static void GetAudioSource(AudioSource ___audio)
             {
-                if (!_waveAudioSources.ContainsKey(___audio))                
+                if (!_waveAudioSources.ContainsKey(___audio))
                     _waveAudioSources.Add(___audio, ___audio.volume);
             }
         }
@@ -198,7 +197,7 @@ namespace RandomEncounters
             [HarmonyPatch("Update")]
             public static bool SetToMinVolume()
             {
-                if (_fogCleared)
+                if (_fogCleared || _clearFog)
                     return true;
 
                 return false;

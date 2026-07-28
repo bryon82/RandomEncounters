@@ -9,19 +9,19 @@ namespace RandomEncounters
     {
         public override string Name => "Dense Fog and Whales";
         public override int Weight => 5;
-        public override bool IsAvailable() =>
+        public override bool IsAvailable =>
             controlSeaLifeMod.Value
             && SeaLifeModPluginInstance != null
             && enableDenseFog.Value
             && !denseFogEncounter.IsActive
             && WeatherStorms.instance.InvokePrivateMethod<float>("GetNormalizedDistance") >= 0.75f;
 
-        private readonly Encounter denseFogEncounter = EncounterRegistry.GetEncounterByName("Dense Fog");
+        private readonly Encounter denseFogEncounter = EncounterRegistry.GetByName("Dense Fog");
 
         public override void Trigger()
         {
             denseFogEncounter.Trigger();
-            var whalesEncounter = EncounterRegistry.GetEncounterByName("Whales");
+            var whalesEncounter = EncounterRegistry.GetByName("Whales");
             whalesEncounter.Trigger();
         }
     }

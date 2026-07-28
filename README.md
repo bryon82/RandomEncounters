@@ -10,6 +10,8 @@ These are the encounters that currently are a part of this mod. There is a confi
 * Generates whales from the fantastic mod [SeaLifeMod](https://github.com/BryanP-JP19/SailwindSeaLifeMod) by Discord user BryanPhillips, if it is installed, at a more random cadence. Medium chance for this encounter. <details><summary>click to view weighted value</summary>25</details>
 * An intense storm that blows in fast. Very low chance for this encounter. <details><summary>click to view weighted value</summary>5</details>
 * A fishing bonanza, heralded by seagulls circling your boat, where fish are fast to hook on your fishing line. Compatible with IdleFishing mod. Low chance for this encounter. <details><summary>click to view weighted value</summary>10</details>
+<br>
+These encounters will persist. When you save the game in the middle of an encounter, quit the game, and then reload that save, that encounter will be restored. For timed encounters, that means you will still have the same time remaining for the encounter. For the whales encounter, that means the same number of whales that were active will be respawned. For flotsam encounters, that means all of the items except the wreck will still be there; the wreck turns into a piece of firewood.
 
 ### Configurable
 
@@ -30,7 +32,7 @@ Here are the steps to use the API to add your encounter:
 
 2. Add the RandomEncounters.dll as a reference in your project.
 
-3. Make a class for your encounter which extends the abstract Encouter class:
+3. Make a class for your encounter which extends the abstract Encounter class. For example:
 ```
 public class KrakenEncounter : Encounter
 {
@@ -38,7 +40,7 @@ public class KrakenEncounter : Encounter
 
     public override int Weight => 2;
 
-    public override bool IsAvailable() => GameState.weather == Weather.Storm;
+    public override bool IsAvailable => GameState.playing && GameState.currentBoat
 
     public override void Trigger() => Runner(SpawnKraken());
 }

@@ -9,7 +9,7 @@ namespace RandomEncounters
     {
         public override string Name => "Flotsam";
         public override int Weight => 15;
-        public override bool IsAvailable() => enableFlotsam.Value;
+        public override bool IsAvailable => enableFlotsam.Value;
         public override void Trigger() => Run();
 
         private void Run()

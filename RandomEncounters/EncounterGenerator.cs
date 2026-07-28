@@ -120,13 +120,16 @@ namespace RandomEncounters
             var timeRemaining = ModData.GetEntry<float>($"{PLUGIN_NAME}.EncounterTimeRemaining");
             var whaleCount = ModData.GetEntry<int>($"{PLUGIN_NAME}.WhaleCount");
 
+            LogDebug($"Loaded encounter data: Name={encounterName}, TimeRemaining={timeRemaining}, WhaleCount={whaleCount}");
+
             yield return new WaitUntil(() => GameState.playing && !GameState.currentlyLoading);
 
             if (!string.IsNullOrEmpty(encounterName) && timeRemaining > 0f)
             {
-                var enc = EncounterRegistry.GetEncounterByName(encounterName);
-                if (enc != null && enc.IsAvailable())
+                var enc = EncounterRegistry.GetByName(encounterName);
+                if (enc != null && enc.IsAvailable)
                 {
+                    LogInfo($"Restoring encounter: {encounterName} with {timeRemaining} seconds remaining.");
                     enc.TimeRemaining = timeRemaining;
                     enc.Trigger();
                 }
@@ -134,18 +137,19 @@ namespace RandomEncounters
 
             if (whaleCount > 0)
             {
-                var whalesEncounter = (WhalesEncounter)EncounterRegistry.GetEncounterByName("Whales");
+                var whalesEncounter = (WhalesEncounter)EncounterRegistry.GetByName("Whales");
 
-                if (whalesEncounter != null && whalesEncounter.IsAvailable())
+                if (whalesEncounter != null && whalesEncounter.IsAvailable)
                     whalesEncounter.TriggerWasActive(whaleCount);
             }
         }
 
         internal void SaveEncounter()
         {
-            var enc = EncounterRegistry.GetActiveEncounter();
+            var enc = EncounterRegistry.GetActive();
             if (enc != null)
             {
+                LogDebug($"Saving encounter data: Name={enc.Name}, TimeRemaining={enc.TimeRemaining}");
                 ModData.AddEntry($"{PLUGIN_NAME}.EncounterName", enc.Name);
                 ModData.AddEntry($"{PLUGIN_NAME}.EncounterTimeRemaining", enc.TimeRemaining);
             }

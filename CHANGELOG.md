@@ -2,11 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
-## [v2.0.0] - 2027-07-27
+## [v2.0.0] - 2027-07-28
 
 ### Added
 - API system so other mod authors can easily add encounters to the RandomEncounters pool of encounters. This includes a registry system and events.
-- Persistance to the enounters. Now when you load a save where you were in the middle of an encounter, the encounter will continue.
+- Persistance to the enounters. When you save the game in the middle of an encounter, quit the game, and then reload that save, that encounter will be restored. For timed encounters, that means you will still have the same time remaining for the encounter. For the whales encounter, that means the same number of whales that were active will be respawned.
 
 ### Updated
 - Encounters to use the API system.
