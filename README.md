@@ -46,6 +46,11 @@ public class KrakenEncounter : Encounter
 }
 ```
 
+'Weight' is how this encounter is weighted against the other encounters when the random roll to select an encounter occurs.
+'IsAvailable' is the game state when this encounter is available to be selected. Only encounters that are available are eligble to be selected when an encouter occurs.
+'Trigger' is called if thw encounter is selected.
+'Runner' is a wrapper for a MonoBehaviour instance calling StartCoroutine. 
+
 4. In your mod's Awake, add your encounter to the registry
 ```
 EncounterRegistry.Register(new KrakenEncounter());
