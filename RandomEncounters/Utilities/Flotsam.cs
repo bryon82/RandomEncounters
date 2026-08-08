@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using Crest;
+using System.Collections;
 using UnityEngine;
 using static RandomEncounters.RE_Plugin;
 
@@ -6,8 +7,11 @@ namespace RandomEncounters
 {
     internal class Flotsam
     {
+        private static readonly SampleHeightHelper helper = new SampleHeightHelper();
+
         internal static void SpawnItem(Vector3 spawnPoint, GameObject prefabGO, float amount, bool wreckage = false)
         {
+            spawnPoint.y = OceanHeight.GetHeight(helper, spawnPoint);
             var obj = Object.Instantiate(prefabGO, spawnPoint, Quaternion.Euler(Random.Range(0, 360), Random.Range(0, 360), Random.Range(0, 360)));
             var shipItem = obj.GetComponent<ShipItem>();
             shipItem.sold = true;

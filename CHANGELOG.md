@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.0.1] - 2027-08-07
+
+### Fixed
+- Flotsam and wrecks spawing in the air.
+
 ## [v2.0.0] - 2027-07-28
 
 ### Added
